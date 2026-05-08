@@ -72,6 +72,7 @@ async function uploadChunkWithRetry(
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     if (signal.aborted) throw new Error('CANCELLED')
+    try {
       res = await fetch(endpoint, { method: 'POST', body: fd, signal })
       if (res.ok) break
       lastError = `HTTP ${res.status}`

@@ -994,7 +994,7 @@ function DashboardPage() {
       </AnimatePresence>
 
       {/* Modal Hapus Massal */}
-      <Modal isOpen={showBulkDeleteModal} onClose={() => setShowBulkDeleteModal(false)} title="Hapus File Terpilih">
+      <Modal open={showBulkDeleteModal} onClose={() => setShowBulkDeleteModal(false)} title="Hapus File Terpilih">
         <p className="text-slate-400 mb-6">Apakah kamu yakin ingin menghapus {selectedIds.size} file yang dipilih? Tindakan ini tidak dapat dibatalkan.</p>
         <div className="flex justify-end gap-3">
           <button onClick={() => setShowBulkDeleteModal(false)} className="px-4 py-2 text-slate-400 hover:text-white transition-colors" disabled={actionLoading}>Batal</button>

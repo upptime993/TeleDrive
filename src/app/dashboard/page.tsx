@@ -653,6 +653,14 @@ function DashboardPage() {
               ))}
             </div>
 
+            {selectMode && filteredFiles.length > 0 && (
+              <button
+                onClick={toggleSelectAll}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors whitespace-nowrap ml-1"
+              >
+                {selectedIds.size === filteredFiles.length ? 'Batal Pilih Semua' : 'Pilih Semua'}
+              </button>
+            )}
             <button
               onClick={() => { setSelectMode(m => !m); setSelectedIds(new Set()) }}
               className={`p-2 rounded-lg transition-colors ${selectMode ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-white'}`}

@@ -20,6 +20,8 @@ export interface UploadItem {
   speed: string
   error?: string
   abortController?: AbortController
+  startTime?: number
+  timeTaken?: string
 }
 
 interface UploadContextValue {
@@ -279,7 +281,8 @@ export function UploadProvider({ children, onUploadComplete }: { children: React
     const effectiveWorkerUrls = (workerUrls && workerUrls.length > 0) ? workerUrls : autoWorkerUrls
 
     await Promise.all(newItems.map(async (item) => {
-      update(item.id, { status: 'uploading' })
+      const uploadStartTime = Date.now()
+      update(item.id, { status: 'uploading', startTime: uploadStartTime })
       try {
         await uploadFileChunked(
           item.file, item.folderId,
@@ -287,7 +290,11 @@ export function UploadProvider({ children, onUploadComplete }: { children: React
           item.abortController!.signal,
           effectiveWorkerUrls,
         )
-        update(item.id, { status: 'done', progress: 100, speed: '' })
+        
+        const durationSec = Math.max(1, Math.round((Date.now() - uploadStartTime) / 1000))
+        const timeTaken = durationSec < 60 ? `${durationSec}s` : `${Math.floor(durationSec / 60)}m ${durationSec % 60}s`
+        
+        update(item.id, { status: 'done', progress: 100, speed: '', timeTaken })
         onCompleteRef.current?.()
         toast(`"${item.file.name}" berhasil diupload!`, 'success')
       } catch (err: unknown) {
@@ -546,7 +553,7 @@ function UploadPanelContent({ onClose }: { onClose?: () => void }) {
                   {item.file.name}
                 </span>
                 <span style={{ fontSize: '0.63rem', color: '#555', flexShrink: 0 }}>
-                  {item.status === 'uploading' && item.speed ? item.speed : item.status === 'pending' ? formatSize(item.file.size) : item.status === 'done' ? '✓' : ''}
+                  {item.status === 'uploading' && item.speed ? item.speed : item.status === 'pending' ? formatSize(item.file.size) : item.status === 'done' ? (item.timeTaken ? `✓ ${item.timeTaken}` : '✓') : ''}
                 </span>
                 {/* FIX #4: stopPropagation agar klik X tidak bubble ke header dan trigger toggle minimize */}
                 <button

@@ -150,7 +150,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Cascade delete: file di folder ini + share links + pesan Telegram
-    const files = await FileModel.find({ folderId, userId: session.user.id }).lean() as any[]
+    const files = await FileModel.find({ folderId: deleted._id, userId: session.user.id }).lean() as any[]
     if (files.length > 0) {
       const fileIds = files.map(f => f._id)
       await FileModel.deleteMany({ _id: { $in: fileIds } })

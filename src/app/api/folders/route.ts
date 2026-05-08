@@ -5,7 +5,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Folder } from '@/models/Folder'
 import { File as FileModel } from '@/models/File'
 import { ShareLink } from '@/models/ShareLink'
-import { deleteTelegramMessages, collectMsgIds } from '@/app/api/files/route'
+import { deleteTelegramMessages, collectMsgIds } from '@/lib/telegram'
 
 export async function GET(request: NextRequest) {
   try {

@@ -3,9 +3,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { connectDB } from '@/lib/mongodb'
 import { File as FileModel } from '@/models/File'
-import { getWorkerUrl } from '@/lib/workerUrl'
+import { getWorkerUrl, buildWorkerDownloadUrl } from '@/lib/workerUrl'
 
-// FIX #1: Tambahkan maxDuration agar redirect tidak timeout
+// FIX #1: Tambahkan maxDuration agar request tidak timeout
 export const maxDuration = 60
 export const dynamic = 'force-dynamic'
 
@@ -29,24 +29,9 @@ export async function GET(request: NextRequest) {
     const workerUrl = getWorkerUrl()
     if (!workerUrl) return NextResponse.json({ error: 'Worker tidak tersedia' }, { status: 503 })
 
-    let fetchUrl = ''
-
-    if (!file.isChunked && file.telegramMsgId) {
-      const url = new URL(`${workerUrl}/download`)
-      url.searchParams.set('msgId', file.telegramMsgId.toString())
-      url.searchParams.set('fileName', file.name)
-      url.searchParams.set('mimeType', file.mimeType || 'application/octet-stream')
-      fetchUrl = url.toString()
-    } else if (file.isChunked && file.chunks && file.chunks.length > 0) {
-      const sorted = [...file.chunks].sort((a: any, b: any) => a.part - b.part)
-      const msgIds = sorted.map((c: any) => c.msgId).join(',')
-      const url = new URL(`${workerUrl}/download-chunked`)
-      url.searchParams.set('msgIds', msgIds)
-      url.searchParams.set('fileName', file.name)
-      url.searchParams.set('mimeType', file.mimeType || 'application/octet-stream')
-      url.searchParams.set('fileSize', file.size.toString())
-      fetchUrl = url.toString()
-    } else {
+    // [FIX CODE-01] Gunakan helper buildWorkerDownloadUrl — tidak duplikasi logika lagi
+    const fetchUrl = buildWorkerDownloadUrl(workerUrl, file)
+    if (!fetchUrl) {
       return NextResponse.json({ error: 'Data file tidak valid' }, { status: 400 })
     }
 
@@ -56,13 +41,16 @@ export async function GET(request: NextRequest) {
 
     const workerRes = await fetch(fetchUrl, { headers })
     if (!workerRes.ok) {
-      return NextResponse.json({ error: 'Worker gagal merespons download' }, { status: workerRes.status })
+      return NextResponse.json(
+        { error: 'Worker gagal merespons download' },
+        { status: workerRes.status }
+      )
     }
 
     const resHeaders = new Headers(workerRes.headers)
     return new NextResponse(workerRes.body, {
       status: workerRes.status,
-      headers: resHeaders
+      headers: resHeaders,
     })
   } catch (err) {
     console.error('[download]', err)

@@ -17,18 +17,22 @@ app.use((req, res, next) => {
   next();
 });
 
+// [FIX SEC-02] CORS: fallback ke origin:false (tolak semua) jika NEXTAUTH_URL tidak diset
 const allowedOrigin = process.env.NEXTAUTH_URL;
-app.use(cors(allowedOrigin ? { origin: allowedOrigin } : {}));
+if (!allowedOrigin) {
+  console.error('[WORKER] WARNING: NEXTAUTH_URL tidak diset! CORS akan menolak semua cross-origin request.');
+}
+app.use(cors(allowedOrigin ? { origin: allowedOrigin } : { origin: false }));
 app.use(express.json({ limit: '1mb' }));
 
 // ─── Worker Auth Middleware ───────────────────────────────────
 const WORKER_SECRET = process.env.WORKER_SECRET || '';
 
 function requireSecret(req, res, next) {
-  // Also accept secret from query param (for redirect-based downloads)
-  const querySecret = req.query._ws;
+  // Terima secret dari header x-worker-secret (digunakan oleh Next.js API routes)
+  // atau dari query param _ws (backward-compat, hanya untuk kasus tertentu)
   if (!WORKER_SECRET) return next();
-  const headerSecret = req.headers["x-worker-secret"] || querySecret;
+  const headerSecret = req.headers['x-worker-secret'] || req.query._ws;
   if (headerSecret !== WORKER_SECRET) {
     return res.status(401).json({ error: 'Unauthorized: invalid worker secret' });
   }
@@ -149,45 +153,54 @@ app.get('/download', requireSecret, async (req, res) => {
 });
 
 // ─── Download chunked ─────────────────────────────────────────
+// [FIX BUG-03] Download semua chunk ke memori DULU, baru set headers dan kirim
+// Ini mencegah file korup dikirim ke client ketika sebagian chunk gagal
 app.get('/download-chunked', requireSecret, async (req, res) => {
   try {
-    const { msgIds, fileName, mimeType, fileSize } = req.query;
+    const { msgIds, fileName, mimeType } = req.query;
     if (!msgIds) return res.status(400).json({ error: 'msgIds wajib diisi' });
     const ids = String(msgIds).split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
     if (!ids.length) return res.status(400).json({ error: 'msgIds tidak valid' });
     console.log(`[download-chunked] Fetching ${ids.length} chunks`);
-    res.set({
-      'Content-Type': mimeType || 'application/octet-stream',
-      'Content-Disposition': `attachment; filename="${encodeURIComponent(fileName || 'file')}"`,
-    });
-    if (fileSize) res.set('Content-Length', fileSize);
-    
-    // Pre-fetch all messages to avoid N+1 bottleneck
+
+    // Step 1: Batch fetch semua message metadata sekaligus
     const messages = await client.getMessages('me', { ids });
     const messageMap = new Map();
     if (messages && messages.length > 0) {
       messages.forEach(m => messageMap.set(m.id, m));
     }
 
+    // Step 2: Download semua chunk ke memori — validasi PENUH sebelum kirim ke client
+    // Jika ada chunk yang gagal, return error SEBELUM headers dikirim
+    const buffers = [];
     for (const id of ids) {
       const msg = messageMap.get(id);
       if (!msg || !msg.media) {
         console.error(`[download-chunked] Chunk msgId=${id} tidak ditemukan`);
-        if (!res.headersSent) return res.status(404).json({ error: `Chunk msgId=${id} tidak ditemukan` });
-        res.socket.destroy(new Error(`Chunk msgId=${id} tidak ditemukan`));
-        break;
+        // Header belum dikirim karena kita buffer dulu — bisa return error JSON
+        return res.status(404).json({ error: `Chunk msgId=${id} tidak ditemukan di Telegram` });
       }
       const buffer = await client.downloadMedia(msg.media, {});
-      if (!buffer || buffer.length === 0) { 
-        console.error(`[download-chunked] Chunk msgId=${id} buffer kosong`); 
-        if (!res.headersSent) return res.status(404).json({ error: `Chunk msgId=${id} buffer kosong` });
-        res.socket.destroy(new Error(`Chunk msgId=${id} buffer kosong`));
-        break; 
+      if (!buffer || buffer.length === 0) {
+        console.error(`[download-chunked] Chunk msgId=${id} buffer kosong`);
+        return res.status(500).json({ error: `Chunk msgId=${id} menghasilkan buffer kosong` });
       }
-      res.write(buffer);
+      buffers.push(buffer);
       console.log(`[download-chunked] Chunk msgId=${id} size=${buffer.length} OK`);
     }
+
+    // Step 3: Semua chunk berhasil didownload — sekarang aman untuk set headers dan kirim
+    const totalSize = buffers.reduce((sum, buf) => sum + buf.length, 0);
+    res.set({
+      'Content-Type': mimeType || 'application/octet-stream',
+      'Content-Disposition': `attachment; filename="${encodeURIComponent(fileName || 'file')}"`,
+      'Content-Length': totalSize,
+    });
+    for (const buf of buffers) {
+      res.write(buf);
+    }
     res.end();
+    console.log(`[download-chunked] Selesai — total ${totalSize} bytes`);
   } catch (err) {
     console.error('[download-chunked] ERROR:', err.message);
     if (!res.headersSent) res.status(500).json({ error: err.message });

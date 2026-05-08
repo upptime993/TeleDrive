@@ -47,43 +47,52 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Generate unique token
-    let token = generateToken()
-    let attempts = 0
-    while (attempts < 5) {
-      const clash = await ShareLink.findOne({ token })
-      if (!clash) break
-      token = generateToken()
-      attempts++
-    }
-
-    if (attempts === 5) {
-      return NextResponse.json({ error: 'Gagal membuat token unik' }, { status: 500 })
-    }
-
     // Parse expiry
     let expiresAt: Date | null = null
     if (body.expiresInDays && typeof body.expiresInDays === 'number' && body.expiresInDays > 0) {
       expiresAt = new Date(Date.now() + body.expiresInDays * 86400000)
     }
 
-    const share = await ShareLink.create({
-      token,
-      fileId: file._id,
-      userId: session.user.id,
-      fileName: file.name,
-      fileSize: file.size,
-      mimeType: file.mimeType,
-      expiresAt,
-    })
+    // [FIX BUG-04] Gunakan pendekatan optimistik dengan unique index MongoDB
+    // Ini menghilangkan race condition TOCTOU antara findOne dan create
+    let share = null
+    let attempts = 0
+    while (attempts < 5) {
+      try {
+        share = await ShareLink.create({
+          token: generateToken(),
+          fileId: file._id,
+          userId: session.user.id,
+          fileName: file.name,
+          fileSize: file.size,
+          mimeType: file.mimeType,
+          expiresAt,
+        })
+        break // Berhasil — keluar dari loop
+      } catch (err: any) {
+        if (err.code === 11000) {
+          // Duplicate key dari MongoDB unique index — generate token baru
+          attempts++
+          continue
+        }
+        throw err // Error lain — re-throw
+      }
+    }
+
+    if (!share) {
+      return NextResponse.json({ error: 'Gagal membuat token unik setelah 5 percobaan' }, { status: 500 })
+    }
 
     const baseUrl = process.env.NEXTAUTH_URL || request.nextUrl.origin
-    return NextResponse.json({
-      success: true,
-      token: share.token,
-      url: `${baseUrl}/share/${share.token}`,
-      downloadCount: 0,
-    }, { status: 201 })
+    return NextResponse.json(
+      {
+        success: true,
+        token: share.token,
+        url: `${baseUrl}/share/${share.token}`,
+        downloadCount: 0,
+      },
+      { status: 201 }
+    )
   } catch (err) {
     console.error('[share POST]', err)
     return NextResponse.json({ error: 'Gagal membuat share link' }, { status: 500 })
@@ -106,7 +115,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Link tidak ditemukan atau sudah kadaluarsa' }, { status: 404 })
     }
 
-    // Check expiry
+    // Check expiry (backup dari TTL index MongoDB)
     if (share.expiresAt && new Date() > new Date(share.expiresAt)) {
       await ShareLink.deleteOne({ token })
       return NextResponse.json({ error: 'Link sudah kadaluarsa' }, { status: 410 })

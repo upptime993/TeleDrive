@@ -50,3 +50,45 @@ export async function getOnlineWorkerUrls(): Promise<string[]> {
   )
   return results.filter(r => r.ok).map(r => r.url)
 }
+
+/**
+ * Interface minimal untuk file doc yang dibutuhkan oleh buildWorkerDownloadUrl.
+ * Dipakai di download/route.ts dan share/download/route.ts.
+ */
+export interface FileDownloadDoc {
+  isChunked: boolean
+  telegramMsgId?: number | null
+  chunks?: Array<{ part: number; msgId: number }>
+  name: string
+  mimeType?: string | null
+  size?: number
+}
+
+/**
+ * Build URL untuk request download ke worker.
+ * Menggabungkan logic chunked vs non-chunked agar tidak duplikasi di 2 route.
+ * Kembalikan null jika data file tidak valid.
+ */
+export function buildWorkerDownloadUrl(
+  workerUrl: string,
+  file: FileDownloadDoc
+): string | null {
+  if (!file.isChunked && file.telegramMsgId) {
+    const url = new URL(`${workerUrl}/download`)
+    url.searchParams.set('msgId', file.telegramMsgId.toString())
+    url.searchParams.set('fileName', file.name)
+    url.searchParams.set('mimeType', file.mimeType || 'application/octet-stream')
+    return url.toString()
+  }
+  if (file.isChunked && Array.isArray(file.chunks) && file.chunks.length > 0) {
+    const sorted = [...file.chunks].sort((a, b) => a.part - b.part)
+    const msgIds = sorted.map(c => c.msgId).join(',')
+    const url = new URL(`${workerUrl}/download-chunked`)
+    url.searchParams.set('msgIds', msgIds)
+    url.searchParams.set('fileName', file.name)
+    url.searchParams.set('mimeType', file.mimeType || 'application/octet-stream')
+    if (file.size) url.searchParams.set('fileSize', file.size.toString())
+    return url.toString()
+  }
+  return null
+}

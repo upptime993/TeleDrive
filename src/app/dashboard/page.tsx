@@ -61,6 +61,7 @@ function SkeletonRow() {
 // ─── Share Modal ──────────────────────────────────────────────
 function ShareModal({ file, onClose }: { file: FileItem; onClose: () => void }) {
   const [shareUrl, setShareUrl] = useState<string | null>(null)
+  const [downloadCount, setDownloadCount] = useState<number>(0)
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
   const [revoking, setRevoking] = useState(false)
@@ -76,8 +77,10 @@ function ShareModal({ file, onClose }: { file: FileItem; onClose: () => void }) 
     })
       .then(r => r.json())
       .then(d => {
-        if (d.url) setShareUrl(d.url)
-        else toast(d.error || 'Gagal membuat link', 'error')
+        if (d.url) {
+          setShareUrl(d.url)
+          if (typeof d.downloadCount === 'number') setDownloadCount(d.downloadCount)
+        } else toast(d.error || 'Gagal membuat link', 'error')
       })
       .catch(() => toast('Gagal membuat share link', 'error'))
       .finally(() => setLoading(false))
@@ -151,6 +154,9 @@ function ShareModal({ file, onClose }: { file: FileItem; onClose: () => void }) 
               ✓ Link ini bisa diakses siapa saja tanpa login.<br />
               ✓ File bisa langsung didownload dari halaman publik.
             </p>
+            {downloadCount > 0 && (
+              <p className="text-xs text-slate-500 mt-1">Sudah didownload {downloadCount}×</p>
+            )}
           </div>
 
           <div className="flex gap-2 pt-1">
@@ -265,6 +271,8 @@ function DashboardPage() {
   const [showMoveModal, setShowMoveModal] = useState(false)
   const [moveTargetFolderId, setMoveTargetFolderId] = useState<string | null>(null)
   const [shareTarget, setShareTarget] = useState<FileItem | null>(null)
+  const [renameFolderTarget, setRenameFolderTarget] = useState<FolderItem | null>(null)
+  const [renameFolderVal, setRenameFolderVal] = useState('')
 
   const [viewerFile, setViewerFile] = useState<FileItem | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -277,7 +285,8 @@ function DashboardPage() {
   // Fetch semua file untuk storage info — hanya dipanggil sekali saat mount dan saat file baru diupload
   const fetchStorageInfo = useCallback(async () => {
     try {
-      const r = await fetch('/api/files?folderId=all&limit=200')
+      // Ambil hingga 1000 file untuk kalkulasi storage di Sidebar
+      const r = await fetch('/api/files?folderId=all&limit=1000')
       const d = await r.json()
       setAllFiles(d.files ?? [])
     } catch {}
@@ -389,6 +398,26 @@ function DashboardPage() {
 
   function handleDeleteFolder(f: FolderItem) { setDeleteFolderTarget(f) }
 
+  async function handleRenameFolderSubmit(e: FormEvent) {
+    e.preventDefault()
+    if (!renameFolderTarget) return
+    const name = renameFolderVal.trim()
+    if (!name) return
+    const r = await fetch('/api/folders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folderId: renameFolderTarget._id, name }),
+    })
+    if (r.ok) {
+      toast(`Folder diganti nama menjadi "${name}"`, 'success')
+      setRenameFolderTarget(null)
+      load()
+    } else {
+      const d = await r.json()
+      toast(d.error ?? 'Gagal mengganti nama folder', 'error')
+    }
+  }
+
   async function confirmDeleteFolder() {
     if (!deleteFolderTarget) return
     const r = await fetch(`/api/folders?folderId=${deleteFolderTarget._id}`, { method: 'DELETE' })
@@ -442,6 +471,11 @@ function DashboardPage() {
     else setSelectedIds(new Set(filteredFiles.map(f => f._id)))
   }
   const exitSelectMode = () => { setSelectMode(false); setSelectedIds(new Set()) }
+
+  function handleMoveSingleFile(f: FileItem) {
+    setSelectedIds(new Set([f._id]))
+    setShowMoveModal(true)
+  }
 
   async function handleDownloadSelected() {
     if (selectedIds.size === 0) return
@@ -697,12 +731,22 @@ function DashboardPage() {
                       <div className="font-medium text-slate-200 truncate mb-1">{f.name}</div>
                       <div className="text-[11px] text-slate-500">{fmtDate(f.createdAt)}</div>
                     </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDeleteFolder(f) }}
-                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-rose-500/10 text-rose-400 opacity-0 group-hover:opacity-100 sm:opacity-0 focus:opacity-100 transition-opacity"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 sm:opacity-0 focus-within:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setRenameFolderTarget(f); setRenameFolderVal(f.name) }}
+                        className="p-1.5 rounded-lg bg-slate-800/80 backdrop-blur text-slate-300 hover:text-white hover:bg-slate-700"
+                        title="Ganti nama folder"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteFolder(f) }}
+                        className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20"
+                        title="Hapus folder"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
               </motion.div>
@@ -750,6 +794,9 @@ function DashboardPage() {
                             </button>
                             <button onClick={(e) => { e.stopPropagation(); setShareTarget(f) }} className="p-1.5 rounded-lg bg-slate-800/80 backdrop-blur text-cyan-400 hover:text-cyan-300 hover:bg-slate-700" title="Bagikan">
                               <Share2 size={14} />
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); handleMoveSingleFile(f) }} className="p-1.5 rounded-lg bg-slate-800/80 backdrop-blur text-indigo-400 hover:text-indigo-300 hover:bg-slate-700" title="Pindahkan">
+                              <MoveRight size={14} />
                             </button>
                             <button onClick={(e) => { e.stopPropagation(); window.open(`/api/download?fileId=${f._id}`, '_blank') }} className="p-1.5 rounded-lg bg-slate-800/80 backdrop-blur text-slate-300 hover:text-white hover:bg-slate-700" title="Download">
                               <Download size={14} />
@@ -815,6 +862,9 @@ function DashboardPage() {
                                 </button>
                                 <button onClick={() => setShareTarget(f)} className="p-1.5 rounded-md text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-colors" title="Bagikan">
                                   <Share2 size={16} />
+                                </button>
+                                <button onClick={() => handleMoveSingleFile(f)} className="p-1.5 rounded-md text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 transition-colors" title="Pindahkan">
+                                  <MoveRight size={16} />
                                 </button>
                                 {previewable && (
                                   <button onClick={() => setViewerFile(f)} className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 transition-colors" title="Preview">
@@ -925,7 +975,7 @@ function DashboardPage() {
           <div className="p-3 rounded-full bg-rose-500/10 text-rose-500 shrink-0"><Trash2 size={24} /></div>
           <div>
             <p className="text-slate-300 font-medium mb-1">Hapus folder "{deleteFolderTarget?.name}"?</p>
-            <p className="text-sm text-slate-500">File di dalam folder ini tidak akan ikut terhapus, tapi akan dipindahkan otomatis ke root utama.</p>
+            <p className="text-sm text-slate-500">Folder beserta seluruh file di dalamnya akan dihapus permanen dari Telegram. Tindakan ini tidak dapat dibatalkan. Jika folder berisi subfolder, hapus subfolder terlebih dahulu.</p>
           </div>
         </div>
         <div className="flex gap-3 justify-end">
@@ -934,7 +984,24 @@ function DashboardPage() {
         </div>
       </Modal>
 
-      <Modal open={showMoveModal} onClose={() => setShowMoveModal(false)} title="Pindahkan File">
+      <Modal open={!!renameFolderTarget} onClose={() => setRenameFolderTarget(null)} title="Ganti Nama Folder">
+        <form onSubmit={handleRenameFolderSubmit}>
+          <label className="label">Nama Baru Folder</label>
+          <input
+            value={renameFolderVal}
+            onChange={e => setRenameFolderVal(e.target.value)}
+            className="input mb-4"
+            placeholder="Masukkan nama folder baru"
+            autoFocus
+          />
+          <div className="flex gap-3 justify-end mt-6">
+            <button type="button" onClick={() => setRenameFolderTarget(null)} className="btn btn-ghost px-5">Batal</button>
+            <button type="submit" className="btn btn-primary px-5" disabled={!renameFolderVal.trim()}>Simpan</button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal open={showMoveModal} onClose={() => { setShowMoveModal(false); setSelectedIds(new Set()) }} title="Pindahkan File">
         <div className="mb-4">
           <label className="label">Pilih Folder Tujuan</label>
           <select className="input w-full bg-slate-900 border-slate-700" value={moveTargetFolderId || ''} onChange={(e) => setMoveTargetFolderId(e.target.value || null)}>

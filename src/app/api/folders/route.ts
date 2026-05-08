@@ -72,6 +72,43 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// [FIX BUG-01] Tambahkan PATCH untuk rename folder
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json().catch(() => null)
+    if (!body?.folderId || !body?.name) {
+      return NextResponse.json({ error: 'folderId dan name wajib diisi' }, { status: 400 })
+    }
+
+    const safeName = body.name.trim().replace(/\.\.\//g, '').replace(/\.\.\\/g, '').slice(0, 100)
+    if (!safeName) {
+      return NextResponse.json({ error: 'Nama folder tidak valid' }, { status: 400 })
+    }
+
+    await connectDB()
+
+    const updated = await Folder.findOneAndUpdate(
+      { _id: body.folderId, userId: session.user.id },
+      { name: safeName },
+      { new: true }
+    ).lean()
+
+    if (!updated) {
+      return NextResponse.json({ error: 'Folder tidak ditemukan' }, { status: 404 })
+    }
+
+    return NextResponse.json({ success: true, folder: updated })
+  } catch (error) {
+    console.error('[folders PATCH]', error)
+    return NextResponse.json({ error: 'Gagal mengubah nama folder' }, { status: 500 })
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -88,6 +125,21 @@ export async function DELETE(request: NextRequest) {
 
     await connectDB()
 
+    // [FIX BUG-02] Cegah orphaned subfolder — tolak jika masih ada subfolder
+    const hasSubfolder = await Folder.findOne({
+      parentId: folderId,
+      userId: session.user.id,
+    }).lean()
+
+    if (hasSubfolder) {
+      return NextResponse.json(
+        {
+          error: 'Folder tidak bisa dihapus karena masih berisi subfolder. Hapus atau pindahkan subfolder terlebih dahulu.',
+        },
+        { status: 400 }
+      )
+    }
+
     const deleted = await Folder.findOneAndDelete({
       _id: folderId,
       userId: session.user.id,
@@ -97,14 +149,16 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Folder tidak ditemukan' }, { status: 404 })
     }
 
-    // Cascade delete files
+    // Cascade delete: file di folder ini + share links + pesan Telegram
     const files = await FileModel.find({ folderId, userId: session.user.id }).lean() as any[]
     if (files.length > 0) {
       const fileIds = files.map(f => f._id)
       await FileModel.deleteMany({ _id: { $in: fileIds } })
       await ShareLink.deleteMany({ fileId: { $in: fileIds } })
+
+      // [FIX SEC-01] Await agar penghapusan Telegram selesai sebelum function terminate
       const allMsgIds = files.flatMap(collectMsgIds)
-      deleteTelegramMessages(allMsgIds)
+      await deleteTelegramMessages(allMsgIds)
     }
 
     return NextResponse.json({ success: true, message: 'Folder berhasil dihapus' })

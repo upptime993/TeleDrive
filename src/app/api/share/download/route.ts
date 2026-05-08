@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { File as FileModel } from '@/models/File'
 import { ShareLink } from '@/models/ShareLink'
-import { getWorkerUrl } from '@/lib/workerUrl'
+import { getWorkerUrl, buildWorkerDownloadUrl } from '@/lib/workerUrl'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Link tidak ditemukan atau sudah kadaluarsa' }, { status: 404 })
     }
 
-    // Check expiry
+    // Check expiry (backup dari TTL index MongoDB)
     if (share.expiresAt && new Date() > new Date(share.expiresAt)) {
       await ShareLink.deleteOne({ token })
       return NextResponse.json({ error: 'Link sudah kadaluarsa' }, { status: 410 })
@@ -39,27 +39,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Worker tidak tersedia saat ini' }, { status: 503 })
     }
 
-    // Increment download count (fire-and-forget, non-blocking)
+    // Increment download count (fire-and-forget, non-blocking — tidak kritis)
     ShareLink.updateOne({ token }, { $inc: { downloadCount: 1 } }).catch(() => {})
 
-    let fetchUrl = ''
-
-    if (!file.isChunked && file.telegramMsgId) {
-      const url = new URL(`${workerUrl}/download`)
-      url.searchParams.set('msgId', file.telegramMsgId.toString())
-      url.searchParams.set('fileName', file.name)
-      url.searchParams.set('mimeType', file.mimeType || 'application/octet-stream')
-      fetchUrl = url.toString()
-    } else if (file.isChunked && file.chunks && file.chunks.length > 0) {
-      const sorted = [...file.chunks].sort((a: any, b: any) => a.part - b.part)
-      const msgIds = sorted.map((c: any) => c.msgId).join(',')
-      const url = new URL(`${workerUrl}/download-chunked`)
-      url.searchParams.set('msgIds', msgIds)
-      url.searchParams.set('fileName', file.name)
-      url.searchParams.set('mimeType', file.mimeType || 'application/octet-stream')
-      url.searchParams.set('fileSize', file.size.toString())
-      fetchUrl = url.toString()
-    } else {
+    // [FIX CODE-01] Gunakan helper buildWorkerDownloadUrl — tidak duplikasi logika lagi
+    const fetchUrl = buildWorkerDownloadUrl(workerUrl, file)
+    if (!fetchUrl) {
       return NextResponse.json({ error: 'Data file tidak valid' }, { status: 400 })
     }
 
@@ -69,13 +54,16 @@ export async function GET(request: NextRequest) {
 
     const workerRes = await fetch(fetchUrl, { headers })
     if (!workerRes.ok) {
-      return NextResponse.json({ error: 'Worker gagal merespons download' }, { status: workerRes.status })
+      return NextResponse.json(
+        { error: 'Worker gagal merespons download' },
+        { status: workerRes.status }
+      )
     }
 
     const resHeaders = new Headers(workerRes.headers)
     return new NextResponse(workerRes.body, {
       status: workerRes.status,
-      headers: resHeaders
+      headers: resHeaders,
     })
   } catch (err) {
     console.error('[share/download]', err)

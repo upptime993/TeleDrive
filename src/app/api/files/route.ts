@@ -5,6 +5,7 @@ import { connectDB } from '@/lib/mongodb'
 import { File as FileModel } from '@/models/File'
 import { ShareLink } from '@/models/ShareLink'
 import { deleteTelegramMessages, collectMsgIds } from '@/lib/telegram'
+import mongoose from 'mongoose'
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,25 +23,43 @@ export async function GET(request: NextRequest) {
 
     await connectDB()
 
+    // [FIX CODE-02] Endpoint agregasi storage — hitung total tanpa menarik semua dokumen
+    if (searchParams.get('aggregate') === 'storage') {
+      const result = await FileModel.aggregate([
+        { $match: { userId: new mongoose.Types.ObjectId(session.user.id) } },
+        {
+          $group: {
+            _id: null,
+            totalSize: { $sum: '$size' },
+            totalFiles: { $sum: 1 },
+          },
+        },
+      ])
+      const stats = result[0] || { totalSize: 0, totalFiles: 0 }
+      return NextResponse.json({ totalSize: stats.totalSize, totalFiles: stats.totalFiles })
+    }
+
     let query: any = { userId: session.user.id }
 
     if (filter === 'starred') {
       query.isStarred = true
     } else if (filter === 'recent') {
-      // no extra filter
+      // no extra filter — sort by createdAt desc
     } else if (filter === 'foto') {
       query.mimeType = { $regex: '^image/' }
     } else if (filter === 'video') {
       query.mimeType = { $regex: '^video/' }
     } else if (filter === 'document') {
-      query.mimeType = { $regex: '^(application/pdf|text/|application/msword|application/vnd\\.openxmlformats-officedocument.*|application/json)' }
+      query.mimeType = {
+        $regex:
+          '^(application/pdf|text/|application/msword|application/vnd\\.openxmlformats-officedocument.*|application/json)',
+      }
     } else if (folderId !== 'all') {
       query.folderId = folderId || null
     }
 
     const [files, total] = await Promise.all([
-      FileModel
-        .find(query)
+      FileModel.find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(filter === 'recent' ? 50 : limit)
@@ -76,7 +95,8 @@ export async function DELETE(request: NextRequest) {
       await FileModel.deleteOne({ _id: fileId, userId: session.user.id })
       await ShareLink.deleteMany({ fileId })
       const msgIds = collectMsgIds(file)
-      deleteTelegramMessages(msgIds)
+      // [FIX SEC-01] Await agar tidak fire-and-forget — file Telegram benar-benar terhapus
+      await deleteTelegramMessages(msgIds)
       return NextResponse.json({ success: true, message: 'File berhasil dihapus' })
     }
 
@@ -95,7 +115,8 @@ export async function DELETE(request: NextRequest) {
       await FileModel.deleteMany({ _id: { $in: foundIds }, userId: session.user.id })
       await ShareLink.deleteMany({ fileId: { $in: foundIds } })
       const allMsgIds = files.flatMap(collectMsgIds)
-      deleteTelegramMessages(allMsgIds)
+      // [FIX SEC-01] Await agar tidak fire-and-forget
+      await deleteTelegramMessages(allMsgIds)
 
       return NextResponse.json({ success: true, message: `${files.length} file berhasil dihapus` })
     }

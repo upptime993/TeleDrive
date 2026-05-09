@@ -17,12 +17,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// [FIX SEC-02] CORS: fallback ke origin:false (tolak semua) jika NEXTAUTH_URL tidak diset
-const allowedOrigin = process.env.NEXTAUTH_URL;
-if (!allowedOrigin) {
-  console.error('[WORKER] WARNING: NEXTAUTH_URL tidak diset! CORS akan menolak semua cross-origin request.');
-}
-app.use(cors(allowedOrigin ? { origin: allowedOrigin } : { origin: false }));
+// [FIX] CORS: Izinkan semua origin. Keamanan dijamin oleh requireSecret (WORKER_SECRET).
+// Hal ini karena browser client di Vercel harus bisa POST file langsung ke Cloudflare Tunnel (STB).
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-worker-secret']
+}));
 app.use(express.json({ limit: '1mb' }));
 
 // ─── Worker Auth Middleware ───────────────────────────────────

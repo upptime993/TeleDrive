@@ -7,7 +7,7 @@ import {
 import { X, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Minus, Plus } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 
-const CHUNK_SIZE = 4 * 1024 * 1024   // 4 MB per chunk
+const CHUNK_SIZE = 20 * 1024 * 1024  // 20 MB per chunk (menghindari bottleneck hop)
 const MAX_RETRIES = 3
 const CONCURRENT_UPLOADS = 6         // chunk paralel PER worker (6 x 2 worker = 12 paralel total)
 
@@ -57,7 +57,7 @@ function formatSize(bytes: number): string {
 // ─── Upload chunk dengan retry ────────────────────────────────
 async function uploadChunkWithRetry(
   file: File, i: number, totalChunks: number, signal: AbortSignal,
-  workerIdx: number,
+  workerIdx: number, workerUrls: string[], workerSecret: string,
 ): Promise<{ part: number; msgId: number; size: number }> {
   const start = i * CHUNK_SIZE
   const end = Math.min(start + CHUNK_SIZE, file.size)
@@ -70,12 +70,19 @@ async function uploadChunkWithRetry(
   fd.append('totalParts', String(totalChunks))
   fd.append('fileName', file.name)
   fd.append('workerIdx', String(workerIdx))
-  const endpoint = '/api/upload-chunk'
+  
+  // Tembak LANGSUNG ke worker (STB) dari browser untuk menghindari hop Vercel
+  const workerUrl = workerUrls.length > 0 ? workerUrls[workerIdx % workerUrls.length] : null
+  const endpoint = workerUrl ? `${workerUrl}/upload-chunk` : '/api/upload-chunk'
+  const headers: Record<string, string> = {}
+  if (workerSecret && workerUrl) {
+    headers['x-worker-secret'] = workerSecret
+  }
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     if (signal.aborted) throw new Error('CANCELLED')
     try {
-      res = await fetch(endpoint, { method: 'POST', body: fd, signal })
+      res = await fetch(endpoint, { method: 'POST', body: fd, headers, signal })
       if (res.ok) break
       lastError = `HTTP ${res.status}`
       res = null
@@ -121,6 +128,7 @@ async function uploadFileChunked(
   onProgress: (pct: number, speed: string) => void,
   signal: AbortSignal,
   workerUrls: string[],  // array of worker URLs (1–4)
+  workerSecret: string,
 ): Promise<void> {
   const totalChunks = Math.ceil(file.size / CHUNK_SIZE)
   const results: { part: number; msgId: number; size: number }[] = new Array(totalChunks)
@@ -153,7 +161,7 @@ async function uploadFileChunked(
   function launchOne(chunkIdx: number) {
     const workerIdx = resolveWorkerIdxForChunk(chunkIdx, workerUrls)
     let p: Promise<void>
-    p = uploadChunkWithRetry(file, chunkIdx, totalChunks, signal, workerIdx)
+    p = uploadChunkWithRetry(file, chunkIdx, totalChunks, signal, workerIdx, workerUrls, workerSecret)
       .then(result => {
         results[result.part] = result
         uploadedBytes += result.size
@@ -222,20 +230,21 @@ export function UploadProvider({ children, onUploadComplete }: { children: React
     return () => { mountedRef.current = false }
   }, [])
 
-  // FIX #6: Auto-fetch workerUrls dari API jika prop tidak disediakan
+  // FIX #6: Auto-fetch workerUrls dan secret dari API jika prop tidak disediakan
   const [autoWorkerUrls, setAutoWorkerUrls] = useState<string[]>([])
+  const [workerSecret, setWorkerSecret] = useState<string>('')
   useEffect(() => {
-    fetch('/api/worker-url')
+    fetch('/api/worker-info')
       .then(r => r.json())
       .then(d => {
         if (!mountedRef.current) return
-        // Support format baru (urls array) maupun lama (url string)
-        if (Array.isArray(d.urls) && d.urls.length > 0) {
-          setAutoWorkerUrls(d.urls)
-          if (d.urls.length >= 2) {
-            console.log(`[UploadManager] Dual-worker aktif: ${d.urls.join(' | ')}`)
+        if (Array.isArray(d.workerUrls) && d.workerUrls.length > 0) {
+          setAutoWorkerUrls(d.workerUrls)
+          setWorkerSecret(d.workerSecret || '')
+          if (d.workerUrls.length >= 2) {
+            console.log(`[UploadManager] Bypass-hop aktif ke ${d.workerUrls.length} worker`)
           }
-        } else if (d.url) {
+        } else if (d.url) { // fallback
           setAutoWorkerUrls([d.url])
         }
       })
@@ -289,6 +298,7 @@ export function UploadProvider({ children, onUploadComplete }: { children: React
           (pct, speed) => update(item.id, { progress: pct, speed }),
           item.abortController!.signal,
           effectiveWorkerUrls,
+          workerSecret,
         )
         
         const durationSec = Math.max(1, Math.round((Date.now() - uploadStartTime) / 1000))

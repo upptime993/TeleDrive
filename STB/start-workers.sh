@@ -9,19 +9,31 @@
 # PENTING: Pastikan setiap worker menggunakan SESSION yang BERBEDA.
 # Gunakan: node gen-session.mjs  untuk generate session baru.
 
-# ─── EDIT BAGIAN INI ──────────────────────────────────────────
-# Set env vars ini di shell sebelum menjalankan script ini, contoh:
-#   export VERCEL_TOKEN="vcp_xxx..."
-#   export VERCEL_PROJECT_ID="prj_xxx..."
+# ─── helper log ───────────────────────────────────────────────
+log() { echo "[$(date '+%H:%M:%S')] $1"; }
+
+# ─── KONFIGURASI — Edit langsung di STB (jangan push ke git!) ─
+#
+# Cara set VERCEL_TOKEN sebelum jalankan script ini:
+#   export VERCEL_TOKEN="vcp_xxxxx..."       dari https://vercel.com/account/tokens
+#   export VERCEL_PROJECT_ID="prj_xxxxx..."  dari Vercel project settings
 #   sh start-workers.sh
 #
-# Atau hardcode langsung di sini (tidak di-commit ke git):
-VERCEL_TOKEN="${VERCEL_TOKEN:-GANTI_DENGAN_VERCEL_TOKEN_KAMU}"
-VERCEL_PROJECT_ID="${VERCEL_PROJECT_ID:-GANTI_DENGAN_VERCEL_PROJECT_ID_KAMU}"
+# ATAU: hardcode di bawah ini HANYA DI FILE LOKAL STB, tidak perlu di-commit
+VERCEL_TOKEN="${VERCEL_TOKEN:-}"
+VERCEL_PROJECT_ID="${VERCEL_PROJECT_ID:-}"
 WORKER_DIR="/root/teledrive-worker"
 # ──────────────────────────────────────────────────────────────
 
-log() { echo "[$(date '+%H:%M:%S')] $1"; }
+# Validasi token Vercel
+if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+  log "WARNING: VERCEL_TOKEN atau VERCEL_PROJECT_ID tidak diset."
+  log "  Auto-update Vercel env vars akan dilewati."
+  log "  Update manual: Vercel Dashboard -> Project -> Settings -> Environment Variables"
+  SKIP_VERCEL_UPDATE=1
+else
+  SKIP_VERCEL_UPDATE=0
+fi
 
 # Deteksi jumlah worker berdasarkan SESSION_C
 if [ -n "$SESSION_C" ]; then
@@ -94,50 +106,49 @@ if [ "$NUM_WORKERS" = "3" ] && [ -z "$URL3" ]; then
 fi
 
 # ── 5. Update env var di Vercel ──────────────────────────────
-log "Update env vars di Vercel..."
+if [ "$SKIP_VERCEL_UPDATE" = "1" ]; then
+  log "Skip update Vercel (token tidak diset)"
+  log "  Manual: set WORKER_URL=${URL1} di Vercel dashboard"
+  log "  Manual: set WORKER_URL_2=${URL2} di Vercel dashboard"
+else
+  log "Update env vars di Vercel..."
 
-upsert_env() {
-  KEY="$1"
-  VAL="$2"
+  upsert_env() {
+    KEY="$1"
+    VAL="$2"
+    ENV_DATA=$(curl -s \
+      "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}/env" \
+      -H "Authorization: Bearer ${VERCEL_TOKEN}")
+    ENV_ID=$(echo "$ENV_DATA" | \
+      grep -o "\"id\":\"[^\"]*\"[^}]*\"key\":\"${KEY}\"" | \
+      grep -o '"id":"[^"]*"' | \
+      head -1 | cut -d'"' -f4)
+    if [ -n "$ENV_ID" ]; then
+      RESULT=$(curl -s -X PATCH \
+        "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}/env/${ENV_ID}" \
+        -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d "{\"value\":\"${VAL}\"}")
+      echo "$RESULT" | grep -q '"id"' \
+        && log "  OK UPDATED $KEY" \
+        || log "  GAGAL PATCH $KEY: $RESULT"
+    else
+      RESULT=$(curl -s -X POST \
+        "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/env" \
+        -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d "{\"key\":\"${KEY}\",\"value\":\"${VAL}\",\"type\":\"plain\",\"target\":[\"production\",\"preview\"]}")
+      echo "$RESULT" | grep -q '"id"' \
+        && log "  OK CREATED $KEY" \
+        || log "  GAGAL POST $KEY: $RESULT"
+    fi
+  }
 
-  # Ambil semua env vars dan cari ID untuk KEY ini
-  ENV_DATA=$(curl -s \
-    "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}/env" \
-    -H "Authorization: Bearer ${VERCEL_TOKEN}")
-
-  # Parse ID — cari pasangan id+key yang cocok
-  ENV_ID=$(echo "$ENV_DATA" | \
-    grep -o "\"id\":\"[^\"]*\"[^}]*\"key\":\"${KEY}\"" | \
-    grep -o '"id":"[^"]*"' | \
-    head -1 | cut -d'"' -f4)
-
-  if [ -n "$ENV_ID" ]; then
-    # Env var ada → PATCH (update nilai)
-    RESULT=$(curl -s -X PATCH \
-      "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}/env/${ENV_ID}" \
-      -H "Authorization: Bearer ${VERCEL_TOKEN}" \
-      -H "Content-Type: application/json" \
-      -d "{\"value\":\"${VAL}\"}")
-    echo "$RESULT" | grep -q '"id"' \
-      && log "  OK UPDATED $KEY" \
-      || log "  GAGAL PATCH $KEY: $RESULT"
-  else
-    # Env var belum ada → POST (buat baru)
-    RESULT=$(curl -s -X POST \
-      "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/env" \
-      -H "Authorization: Bearer ${VERCEL_TOKEN}" \
-      -H "Content-Type: application/json" \
-      -d "{\"key\":\"${KEY}\",\"value\":\"${VAL}\",\"type\":\"plain\",\"target\":[\"production\",\"preview\"]}")
-    echo "$RESULT" | grep -q '"id"' \
-      && log "  OK CREATED $KEY" \
-      || log "  GAGAL POST $KEY: $RESULT"
+  upsert_env "WORKER_URL"   "$URL1"
+  upsert_env "WORKER_URL_2" "$URL2"
+  if [ "$NUM_WORKERS" = "3" ] && [ -n "$URL3" ]; then
+    upsert_env "WORKER_URL_3" "$URL3"
   fi
-}
-
-upsert_env "WORKER_URL"   "$URL1"
-upsert_env "WORKER_URL_2" "$URL2"
-if [ "$NUM_WORKERS" = "3" ] && [ -n "$URL3" ]; then
-  upsert_env "WORKER_URL_3" "$URL3"
 fi
 
 # ── 6. Simpan URL ke file ─────────────────────────────────────

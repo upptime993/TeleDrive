@@ -7,9 +7,9 @@ import {
 import { X, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Minus, Plus } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 
-const CHUNK_SIZE = 20 * 1024 * 1024  // 20 MB per chunk (menghindari bottleneck hop)
+const CHUNK_SIZE = 4 * 1024 * 1024   // 4 MB per chunk (dikembalikan ke semula demi stabilitas ekstrim)
 const MAX_RETRIES = 3
-const CONCURRENT_UPLOADS = 2         // Turunkan jadi 2 per worker (4 paralel total 2 worker). Hindari CPU 100% STB!
+const CONCURRENT_UPLOADS = 4         // 4 chunk paralel per worker (maksimal 16MB RAM digunakan per worker)
 
 export interface UploadItem {
   id: string

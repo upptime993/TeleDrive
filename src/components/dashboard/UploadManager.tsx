@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/Toast'
 
 const CHUNK_SIZE = 20 * 1024 * 1024  // 20 MB per chunk (menghindari bottleneck hop)
 const MAX_RETRIES = 3
-const CONCURRENT_UPLOADS = 6         // chunk paralel PER worker (6 x 2 worker = 12 paralel total)
+const CONCURRENT_UPLOADS = 2         // Turunkan jadi 2 per worker (4 paralel total 2 worker). Hindari CPU 100% STB!
 
 export interface UploadItem {
   id: string

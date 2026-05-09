@@ -8,7 +8,7 @@ const app = express();
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 20 * 1024 * 1024 },
+  limits: { fileSize: 25 * 1024 * 1024 }, // Naikkan ke 25MB agar chunk 20MB lolos dengan aman
 });
 
 app.use((req, res, next) => {
@@ -272,4 +272,16 @@ app.post('/delete', requireSecret, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+// ─── Global Error Handler ───────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error('[WORKER ERROR]', err);
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({ error: 'Ukuran file melebihi batas yang diizinkan (25MB).' });
+  }
+  if (!res.headersSent) {
+    res.status(500).json({ error: err.message || 'Internal Server Error' });
+  }
+});
+
 app.listen(PORT, () => console.log(`Worker running on port ${PORT}`));

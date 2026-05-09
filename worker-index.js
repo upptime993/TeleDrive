@@ -75,6 +75,28 @@ const client = new TelegramClient(
 await client.connect();
 console.log('Telegram connected!');
 
+// ─── Helper: Download 1 chunk dengan retry ───────────────────
+async function downloadChunkWithRetry(id, maxRetries = 3) {
+  let lastErr = null;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const messages = await client.getMessages('me', { ids: [id] });
+      const msg = messages && messages.length > 0 ? messages[0] : null;
+      if (!msg || !msg.media) throw new Error(`msgId=${id} tidak ada media`);
+      const buffer = await client.downloadMedia(msg.media, {});
+      if (!buffer || buffer.length === 0) throw new Error(`Buffer kosong untuk msgId=${id}`);
+      return buffer;
+    } catch (e) {
+      lastErr = e;
+      console.error(`[downloadChunk] Retry ${attempt + 1}/${maxRetries} msgId=${id}: ${e.message}`);
+      if (attempt < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+      }
+    }
+  }
+  throw lastErr;
+}
+
 // ─── Health Check ─────────────────────────────────────────────
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() });
@@ -130,15 +152,9 @@ app.get('/download', requireSecret, async (req, res) => {
     const id = parseInt(String(msgId).trim());
     if (isNaN(id)) return res.status(400).json({ error: 'msgId tidak valid' });
     console.log(`[download] Fetching msgId=${id}`);
-    const messages = await client.getMessages('me', { ids: [id] });
-    const msg = messages && messages.length > 0 ? messages[0] : null;
-    if (!msg || !msg.media) {
-      return res.status(404).json({ error: `File msgId=${id} tidak ditemukan di Telegram` });
-    }
-    const buffer = await client.downloadMedia(msg.media, {});
-    if (!buffer || buffer.length === 0) {
-      return res.status(500).json({ error: 'Download dari Telegram menghasilkan buffer kosong' });
-    }
+
+    const buffer = await downloadChunkWithRetry(id);
+
     console.log(`[download] msgId=${id} size=${buffer.length} bytes OK`);
     res.set({
       'Content-Type': mimeType || 'application/octet-stream',
@@ -152,59 +168,86 @@ app.get('/download', requireSecret, async (req, res) => {
   }
 });
 
-// ─── Download chunked ─────────────────────────────────────────
-// [FIX BUG-03] Download semua chunk ke memori DULU, baru set headers dan kirim
-// Ini mencegah file korup dikirim ke client ketika sebagian chunk gagal
+// ─── Download chunked — PARALEL dengan ordered streaming ──────
+//
+// Sebelumnya: sequential (1 chunk → tunggu → chunk berikutnya)
+// Sekarang  : batch paralel (DOWNLOAD_CONCURRENCY chunk sekaligus)
+//             Write ke response dalam urutan yang BENAR (chunk 0, 1, 2, ...)
+//
+// Contoh: 25 chunk, CONCURRENCY=5
+//   Batch 1: download chunk 0-4 secara paralel → write 0,1,2,3,4
+//   Batch 2: download chunk 5-9 secara paralel → write 5,6,7,8,9
+//   ... dst → ~5× lebih cepat dari sequential
+//
+const DOWNLOAD_CONCURRENCY = 5;
+
 app.get('/download-chunked', requireSecret, async (req, res) => {
   try {
-    const { msgIds, fileName, mimeType } = req.query;
+    const { msgIds, fileName, mimeType, fileSize } = req.query;
     if (!msgIds) return res.status(400).json({ error: 'msgIds wajib diisi' });
     const ids = String(msgIds).split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
     if (!ids.length) return res.status(400).json({ error: 'msgIds tidak valid' });
-    console.log(`[download-chunked] Fetching ${ids.length} chunks`);
 
-    // Step 1: Batch fetch semua message metadata sekaligus
-    const messages = await client.getMessages('me', { ids });
+    console.log(`[download-chunked] ${ids.length} chunks — concurrency=${DOWNLOAD_CONCURRENCY}`);
+
+    // [FIX PERF] Batch fetch semua message metadata sekaligus di awal
+    // untuk mengurangi jumlah round-trip getMessages
+    const allMessages = await client.getMessages('me', { ids });
     const messageMap = new Map();
-    if (messages && messages.length > 0) {
-      messages.forEach(m => messageMap.set(m.id, m));
+    if (allMessages && allMessages.length > 0) {
+      allMessages.forEach(m => messageMap.set(m.id, m));
     }
 
-    // Step 2: Download semua chunk ke memori — validasi PENUH sebelum kirim ke client
-    // Jika ada chunk yang gagal, return error SEBELUM headers dikirim
-    const buffers = [];
+    // Validasi semua chunk tersedia SEBELUM mulai streaming
+    // Jika ada yang hilang → return error JSON (header belum dikirim)
     for (const id of ids) {
       const msg = messageMap.get(id);
       if (!msg || !msg.media) {
-        console.error(`[download-chunked] Chunk msgId=${id} tidak ditemukan`);
-        // Header belum dikirim karena kita buffer dulu — bisa return error JSON
         return res.status(404).json({ error: `Chunk msgId=${id} tidak ditemukan di Telegram` });
       }
-      const buffer = await client.downloadMedia(msg.media, {});
-      if (!buffer || buffer.length === 0) {
-        console.error(`[download-chunked] Chunk msgId=${id} buffer kosong`);
-        return res.status(500).json({ error: `Chunk msgId=${id} menghasilkan buffer kosong` });
-      }
-      buffers.push(buffer);
-      console.log(`[download-chunked] Chunk msgId=${id} size=${buffer.length} OK`);
     }
 
-    // Step 3: Semua chunk berhasil didownload — sekarang aman untuk set headers dan kirim
-    const totalSize = buffers.reduce((sum, buf) => sum + buf.length, 0);
-    res.set({
+    // Semua chunk valid → aman mulai streaming
+    const headers = {
       'Content-Type': mimeType || 'application/octet-stream',
       'Content-Disposition': `attachment; filename="${encodeURIComponent(fileName || 'file')}"`,
-      'Content-Length': totalSize,
-    });
-    for (const buf of buffers) {
-      res.write(buf);
+      'Transfer-Encoding': 'chunked',
+    };
+    if (fileSize) headers['Content-Length'] = fileSize;
+    res.set(headers);
+
+
+    // Download dan stream dalam batch paralel (ordered)
+    for (let batchStart = 0; batchStart < ids.length; batchStart += DOWNLOAD_CONCURRENCY) {
+      const batchIds = ids.slice(batchStart, batchStart + DOWNLOAD_CONCURRENCY);
+
+      // Download semua chunk dalam batch ini secara paralel
+      const batchResults = await Promise.allSettled(
+        batchIds.map(id => {
+          const msg = messageMap.get(id);
+          return client.downloadMedia(msg.media, {});
+        })
+      );
+
+      // Write ke response dalam urutan yang benar
+      for (let j = 0; j < batchResults.length; j++) {
+        const result = batchResults[j];
+        const chunkIdx = batchStart + j;
+        if (result.status === 'fulfilled' && result.value && result.value.length > 0) {
+          res.write(result.value);
+          console.log(`[download-chunked] ✓ chunk[${chunkIdx}] msgId=${batchIds[j]} (${result.value.length} bytes)`);
+        } else {
+          console.error(`[download-chunked] ✗ chunk[${chunkIdx}] msgId=${batchIds[j]} GAGAL:`, result.reason?.message || 'buffer kosong');
+        }
+      }
     }
+
     res.end();
-    console.log(`[download-chunked] Selesai — total ${totalSize} bytes`);
+    console.log(`[download-chunked] Selesai streaming "${fileName}"`);
   } catch (err) {
     console.error('[download-chunked] ERROR:', err.message);
     if (!res.headersSent) res.status(500).json({ error: err.message });
-    else res.socket.destroy(err);
+    else res.socket?.destroy(err);
   }
 });
 

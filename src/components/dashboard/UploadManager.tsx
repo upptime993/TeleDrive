@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/Toast'
 
 const CHUNK_SIZE = 4 * 1024 * 1024   // 4 MB per chunk
 const MAX_RETRIES = 3
-const CONCURRENT_UPLOADS = 4         // chunk paralel PER worker (4 x 2 worker = 8 paralel total)
+const CONCURRENT_UPLOADS = 6         // chunk paralel PER worker (6 x 2 worker = 12 paralel total)
 
 export interface UploadItem {
   id: string

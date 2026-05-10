@@ -9,7 +9,7 @@ import {
   Pencil, Trash2, Folder as FolderIcon,
   FileText, FileImage, FileVideo, FileAudio, FileArchive, File as FileIconGeneric,
   Plus, CheckSquare, Square, User as UserIcon, Eye, Menu, Star, StarOff, MoveRight, X,
-  Share2, Copy, Check, Link as LinkIcon, RefreshCw
+  Share2, Copy, Check, Link as LinkIcon, RefreshCw, ArrowUpDown, ChevronDown, ListChecks
 } from 'lucide-react'
 import Sidebar, { NavItem } from '@/components/dashboard/Sidebar'
 import { UploadProvider, UploadDropZone, UploadCircleIndicator } from '@/components/dashboard/UploadManager'
@@ -752,10 +752,12 @@ function DashboardPage() {
             <div className="relative flex bg-slate-900/80 border border-slate-800 rounded-lg p-0.5 sm:mr-2">
               <button 
                 onClick={() => setShowSortMenu(p => !p)}
-                className="bg-transparent text-slate-300 text-xs sm:text-sm px-2 sm:px-3 py-1 focus:outline-none flex items-center gap-1 sm:gap-2"
+                className="bg-transparent text-slate-300 px-2 py-1 focus:outline-none flex items-center gap-1 hover:text-white transition-colors"
+                title="Urutkan File"
               >
-                <span className="hidden sm:inline">Urut: </span>
-                {sortBy === 'date' ? 'Tanggal' : sortBy === 'name' ? 'Nama' : 'Ukuran'}
+                <ArrowUpDown size={16} />
+                <span className="hidden sm:inline text-sm ml-1">Sort</span>
+                <ChevronDown size={14} className="opacity-50" />
               </button>
               
               <AnimatePresence>
@@ -766,7 +768,7 @@ function DashboardPage() {
                       initial={{ opacity: 0, y: -10 }} 
                       animate={{ opacity: 1, y: 0 }} 
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full right-0 mt-2 w-32 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden"
+                      className="absolute top-full right-0 mt-2 w-36 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden"
                     >
                       {['date', 'name', 'size'].map(opt => (
                         <button
@@ -777,18 +779,23 @@ function DashboardPage() {
                           {opt === 'date' ? 'Tanggal' : opt === 'name' ? 'Nama' : 'Ukuran'}
                         </button>
                       ))}
+                      <div className="h-px bg-slate-700 my-1" />
+                      <button
+                        onClick={() => { setSortOrder('asc'); setShowSortMenu(false) }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-700 transition-colors ${sortOrder === 'asc' ? 'text-cyan-400 bg-slate-700/50' : 'text-slate-300'}`}
+                      >
+                        Menaik (↑)
+                      </button>
+                      <button
+                        onClick={() => { setSortOrder('desc'); setShowSortMenu(false) }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-700 transition-colors ${sortOrder === 'desc' ? 'text-cyan-400 bg-slate-700/50' : 'text-slate-300'}`}
+                      >
+                        Menurun (↓)
+                      </button>
                     </motion.div>
                   </>
                 )}
               </AnimatePresence>
-
-              <button 
-                onClick={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')} 
-                className="p-1 sm:p-1.5 text-slate-500 hover:text-slate-300 border-l border-slate-800"
-                title={sortOrder === 'asc' ? 'Menaik' : 'Menurun'}
-              >
-                {sortOrder === 'asc' ? '↑' : '↓'}
-              </button>
             </div>
 
             <div className="hidden sm:flex bg-slate-900/80 border border-slate-800 rounded-lg p-0.5">
@@ -807,17 +814,19 @@ function DashboardPage() {
             {selectMode && filteredFiles.length > 0 && (
               <button
                 onClick={toggleSelectAll}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors whitespace-nowrap ml-1"
+                className="px-2 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors ml-1 flex items-center gap-1"
+                title={selectedIds.size === filteredFiles.length ? 'Batal Pilih Semua' : 'Pilih Semua'}
               >
-                {selectedIds.size === filteredFiles.length ? 'Batal Pilih Semua' : 'Pilih Semua'}
+                <CheckSquare size={16} />
+                <span className="hidden sm:inline">{selectedIds.size === filteredFiles.length ? 'Batal Pilih Semua' : 'Pilih Semua'}</span>
               </button>
             )}
             <button
               onClick={() => { setSelectMode(m => !m); setSelectedIds(new Set()) }}
-              className={`p-2 rounded-lg transition-colors ${selectMode ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-white'}`}
-              title="Pilih File"
+              className={`p-2 rounded-lg transition-colors ml-1 ${selectMode ? 'bg-rose-500/20 text-rose-400 hover:bg-rose-500/30' : 'bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-white'}`}
+              title={selectMode ? 'Batal Pilih' : 'Pilih File'}
             >
-              <CheckSquare size={16} />
+              {selectMode ? <X size={16} /> : <ListChecks size={16} />}
             </button>
 
             {/* Upload indicator sudah ada di FAB pojok kanan bawah */}

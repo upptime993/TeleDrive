@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     if (filter === 'trash') {
       query.isDeleted = true
     } else {
-      query.isDeleted = false
+      query.isDeleted = { $ne: true }
       query.parentId = parentId || null
     }
 

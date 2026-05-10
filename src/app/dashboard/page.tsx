@@ -738,7 +738,7 @@ function DashboardPage() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             <div className="hidden md:flex relative w-64 group">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
               <input
@@ -749,11 +749,12 @@ function DashboardPage() {
               />
             </div>
 
-            <div className="relative flex bg-slate-900/80 border border-slate-800 rounded-lg p-0.5 mr-2">
+            <div className="relative flex bg-slate-900/80 border border-slate-800 rounded-lg p-0.5 sm:mr-2">
               <button 
                 onClick={() => setShowSortMenu(p => !p)}
-                className="bg-transparent text-slate-300 text-sm px-3 py-1 focus:outline-none flex items-center gap-2"
+                className="bg-transparent text-slate-300 text-xs sm:text-sm px-2 sm:px-3 py-1 focus:outline-none flex items-center gap-1 sm:gap-2"
               >
+                <span className="hidden sm:inline">Urut: </span>
                 {sortBy === 'date' ? 'Tanggal' : sortBy === 'name' ? 'Nama' : 'Ukuran'}
               </button>
               
@@ -783,14 +784,14 @@ function DashboardPage() {
 
               <button 
                 onClick={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')} 
-                className="p-1.5 text-slate-500 hover:text-slate-300 border-l border-slate-800"
+                className="p-1 sm:p-1.5 text-slate-500 hover:text-slate-300 border-l border-slate-800"
                 title={sortOrder === 'asc' ? 'Menaik' : 'Menurun'}
               >
                 {sortOrder === 'asc' ? '↑' : '↓'}
               </button>
             </div>
 
-            <div className="flex bg-slate-900/80 border border-slate-800 rounded-lg p-0.5">
+            <div className="hidden sm:flex bg-slate-900/80 border border-slate-800 rounded-lg p-0.5">
               {(['list', 'grid'] as const).map(v => (
                 <button
                   key={v}

@@ -9,7 +9,7 @@ import {
   Pencil, Trash2, Folder as FolderIcon,
   FileText, FileImage, FileVideo, FileAudio, FileArchive, File as FileIconGeneric,
   Plus, CheckSquare, Square, User as UserIcon, Eye, Menu, Star, StarOff, MoveRight, X,
-  Share2, Copy, Check, Link as LinkIcon,
+  Share2, Copy, Check, Link as LinkIcon, RefreshCw
 } from 'lucide-react'
 import Sidebar, { NavItem } from '@/components/dashboard/Sidebar'
 import { UploadProvider, UploadDropZone, UploadCircleIndicator } from '@/components/dashboard/UploadManager'

@@ -15,6 +15,26 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
+// 🛡️ SECURITY: Validate WORKER_SECRET on all non-health endpoints.
+// Prevents unauthorized direct access to the Telegram backend even if
+// worker URLs are discovered (defense-in-depth).
+const WORKER_SECRET = process.env.WORKER_SECRET || '';
+
+function requireWorkerSecret(req, res, next) {
+  if (!WORKER_SECRET) return next(); // Skip if no secret configured (dev mode)
+  const provided = req.headers['x-worker-secret'];
+  if (provided !== WORKER_SECRET) {
+    return res.status(403).json({ error: 'Forbidden: invalid worker secret' });
+  }
+  next();
+}
+
+// Apply secret validation to all routes except /health
+app.use((req, res, next) => {
+  if (req.path === '/health') return next();
+  requireWorkerSecret(req, res, next);
+});
+
 // ─── Telegram Client ──────────────────────────────────────────
 const client = new TelegramClient(
   new StringSession(process.env.TELEGRAM_SESSION || ''),

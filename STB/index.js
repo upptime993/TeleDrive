@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import crypto from 'crypto';
 import busboy from 'busboy';
 import { TelegramClient } from 'telegram';
 import { StringSession } from 'telegram/sessions/index.js';
@@ -14,6 +15,57 @@ app.use((req, res, next) => {
 
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
+
+// 🛡️ SECURITY: Validasi akses ke worker menggunakan HMAC token.
+// Token di-generate oleh Next.js server (/api/worker-info) dan dikirim
+// ke browser. Browser mengirim token ini ke STB via header x-worker-token.
+// STB memvalidasi HMAC signature + timestamp expiry.
+//
+// Ini LEBIH AMAN daripada mengirim WORKER_SECRET mentah ke browser karena:
+//   1. Token bersifat time-limited (2 jam)
+//   2. Secret tidak pernah keluar dari server
+//   3. Token yang expired otomatis ditolak
+//
+// Backward-compatible: masih menerima x-worker-secret langsung (dari
+// Next.js server-side calls yang sudah ada) agar tidak breaking.
+const WORKER_SECRET = process.env.WORKER_SECRET || 'rahasia_bersama_12345';
+const TOKEN_TTL_SEC = 2 * 60 * 60; // 2 jam — sama dengan di worker-info route
+
+function validateWorkerAuth(req, res, next) {
+  if (!WORKER_SECRET) return next(); // Dev mode: skip jika tidak ada secret
+
+  // Method 1: Direct secret (dari Next.js server → STB, backward-compat)
+  const directSecret = req.headers['x-worker-secret'];
+  if (directSecret && directSecret === WORKER_SECRET) {
+    return next();
+  }
+
+  // Method 2: HMAC token (dari browser → STB)
+  const token = req.headers['x-worker-token'];
+  if (token) {
+    const [timestampStr, hmacProvided] = String(token).split('.');
+    if (timestampStr && hmacProvided) {
+      const timestamp = parseInt(timestampStr, 10);
+      const now = Math.floor(Date.now() / 1000);
+      // Cek token belum expired
+      if (!isNaN(timestamp) && (now - timestamp) <= TOKEN_TTL_SEC) {
+        const expectedHmac = crypto.createHmac('sha256', WORKER_SECRET)
+          .update(timestampStr).digest('hex');
+        if (crypto.timingSafeEqual(Buffer.from(hmacProvided, 'hex'), Buffer.from(expectedHmac, 'hex'))) {
+          return next();
+        }
+      }
+    }
+  }
+
+  return res.status(403).json({ error: 'Forbidden: invalid or expired token' });
+}
+
+// Apply auth ke semua route kecuali /health
+app.use((req, res, next) => {
+  if (req.path === '/health') return next();
+  validateWorkerAuth(req, res, next);
+});
 
 // ─── Telegram Client ──────────────────────────────────────────
 const client = new TelegramClient(

@@ -65,8 +65,10 @@ export async function POST(request: NextRequest) {
     if (!stbRes.ok) {
       const errText = await stbRes.text().catch(() => 'Unknown STB error')
       console.error(`[upload-chunk] STB error part=${part}:`, errText)
+      // 🛡️ SECURITY: Jangan teruskan error mentah dari STB ke client
+      // karena bisa mengandung info internal (path, stack trace, dll)
       return NextResponse.json(
-        { error: `STB gagal memproses chunk ${part}: ${errText}` },
+        { error: `Gagal memproses chunk ${part}. Coba lagi.` },
         { status: 502 }
       )
     }

@@ -283,9 +283,10 @@ function DashboardPage() {
   // -- New States for Optimization & UX --
   const [sortBy, setSortBy] = useState<'name'|'size'|'date'>('date')
   const [sortOrder, setSortOrder] = useState<'asc'|'desc'>('desc')
+  const [showSortMenu, setShowSortMenu] = useState(false)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; file: FileItem | null; folder: FolderItem | null } | null>(null)
   const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null)
-  const [dataCache, setDataCache] = useState<Record<string, { files: FileItem[], folders: FolderItem[] }>>({})
+  const dataCache = useRef<Record<string, { files: FileItem[], folders: FolderItem[] }>>({})
 
   useEffect(() => { if (status === 'unauthenticated') router.push('/login') }, [status, router])
 
@@ -305,9 +306,9 @@ function DashboardPage() {
     const cacheKey = `${activeNav}-${currentFolder || 'root'}`
     
     if (!background) {
-      if (dataCache[cacheKey]) {
-        setFiles(dataCache[cacheKey].files)
-        setFolders(dataCache[cacheKey].folders)
+      if (dataCache.current[cacheKey]) {
+        setFiles(dataCache.current[cacheKey].files)
+        setFolders(dataCache.current[cacheKey].folders)
         // Lanjutkan fetch di background tanpa showing loading spinner
       } else {
         setLoading(true)
@@ -337,7 +338,7 @@ function DashboardPage() {
         const sd = await sr.json()
         setFiles(sd.files ?? [])
         setFolders([])
-        setDataCache(prev => ({ ...prev, [cacheKey]: { files: sd.files ?? [], folders: [] } }))
+        dataCache.current[cacheKey] = { files: sd.files ?? [], folders: [] }
         setLoading(false)
         return
       } else {
@@ -352,7 +353,7 @@ function DashboardPage() {
       const [fd, dd] = await Promise.all([fr.json(), dr.json()])
       setFiles(fd.files ?? [])
       setFolders(dd.folders ?? [])
-      setDataCache(prev => ({ ...prev, [cacheKey]: { files: fd.files ?? [], folders: dd.folders ?? [] } }))
+      dataCache.current[cacheKey] = { files: fd.files ?? [], folders: dd.folders ?? [] }
 
       if (activeNav === 'My Drive') {
         fetch('/api/folders?all=true').then(r => r.json()).then(d => setAllFolders(d.folders ?? []))
@@ -362,7 +363,7 @@ function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }, [currentFolder, activeNav, toast, dataCache])
+  }, [currentFolder, activeNav, toast])
 
   useEffect(() => { if (status === 'authenticated') load() }, [status, load])
 
@@ -748,19 +749,41 @@ function DashboardPage() {
               />
             </div>
 
-            <div className="flex bg-slate-900/80 border border-slate-800 rounded-lg p-0.5 mr-2">
-              <select 
-                value={sortBy} 
-                onChange={e => setSortBy(e.target.value as any)}
-                className="bg-transparent text-slate-300 text-sm px-2 focus:outline-none cursor-pointer"
+            <div className="relative flex bg-slate-900/80 border border-slate-800 rounded-lg p-0.5 mr-2">
+              <button 
+                onClick={() => setShowSortMenu(p => !p)}
+                className="bg-transparent text-slate-300 text-sm px-3 py-1 focus:outline-none flex items-center gap-2"
               >
-                <option value="date" className="bg-slate-900">Tanggal</option>
-                <option value="name" className="bg-slate-900">Nama</option>
-                <option value="size" className="bg-slate-900">Ukuran</option>
-              </select>
+                {sortBy === 'date' ? 'Tanggal' : sortBy === 'name' ? 'Nama' : 'Ukuran'}
+              </button>
+              
+              <AnimatePresence>
+                {showSortMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowSortMenu(false)} />
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full right-0 mt-2 w-32 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden"
+                    >
+                      {['date', 'name', 'size'].map(opt => (
+                        <button
+                          key={opt}
+                          onClick={() => { setSortBy(opt as any); setShowSortMenu(false) }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-700 transition-colors ${sortBy === opt ? 'text-cyan-400 bg-slate-700/50' : 'text-slate-300'}`}
+                        >
+                          {opt === 'date' ? 'Tanggal' : opt === 'name' ? 'Nama' : 'Ukuran'}
+                        </button>
+                      ))}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+
               <button 
                 onClick={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')} 
-                className="p-1.5 text-slate-500 hover:text-slate-300"
+                className="p-1.5 text-slate-500 hover:text-slate-300 border-l border-slate-800"
                 title={sortOrder === 'asc' ? 'Menaik' : 'Menurun'}
               >
                 {sortOrder === 'asc' ? '↑' : '↓'}

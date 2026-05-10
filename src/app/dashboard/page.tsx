@@ -280,6 +280,13 @@ function DashboardPage() {
   const [showAccount, setShowAccount] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
 
+  // -- New States for Optimization & UX --
+  const [sortBy, setSortBy] = useState<'name'|'size'|'date'>('date')
+  const [sortOrder, setSortOrder] = useState<'asc'|'desc'>('desc')
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; file: FileItem | null; folder: FolderItem | null } | null>(null)
+  const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null)
+  const [dataCache, setDataCache] = useState<Record<string, { files: FileItem[], folders: FolderItem[] }>>({})
+
   useEffect(() => { if (status === 'unauthenticated') router.push('/login') }, [status, router])
 
   // Fetch semua file untuk storage info — hanya dipanggil sekali saat mount dan saat file baru diupload
@@ -294,8 +301,19 @@ function DashboardPage() {
 
   useEffect(() => { if (status === 'authenticated') fetchStorageInfo() }, [status, fetchStorageInfo])
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async (background = false) => {
+    const cacheKey = `${activeNav}-${currentFolder || 'root'}`
+    
+    if (!background) {
+      if (dataCache[cacheKey]) {
+        setFiles(dataCache[cacheKey].files)
+        setFolders(dataCache[cacheKey].folders)
+        // Lanjutkan fetch di background tanpa showing loading spinner
+      } else {
+        setLoading(true)
+      }
+    }
+
     try {
       let q = ''
       let pq = ''
@@ -310,12 +328,16 @@ function DashboardPage() {
         q = '?filter=video'
       } else if (activeNav === 'Document') {
         q = '?filter=document'
+      } else if (activeNav === 'Tempat Sampah') {
+        q = '?filter=trash'
+        pq = '?filter=trash'
       } else if (activeNav === 'Shared with me') {
         // Use dedicated share list endpoint
         const sr = await fetch('/api/share/list')
         const sd = await sr.json()
         setFiles(sd.files ?? [])
         setFolders([])
+        setDataCache(prev => ({ ...prev, [cacheKey]: { files: sd.files ?? [], folders: [] } }))
         setLoading(false)
         return
       } else {
@@ -330,6 +352,7 @@ function DashboardPage() {
       const [fd, dd] = await Promise.all([fr.json(), dr.json()])
       setFiles(fd.files ?? [])
       setFolders(dd.folders ?? [])
+      setDataCache(prev => ({ ...prev, [cacheKey]: { files: fd.files ?? [], folders: dd.folders ?? [] } }))
 
       if (activeNav === 'My Drive') {
         fetch('/api/folders?all=true').then(r => r.json()).then(d => setAllFolders(d.folders ?? []))
@@ -339,7 +362,7 @@ function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }, [currentFolder, activeNav, toast])
+  }, [currentFolder, activeNav, toast, dataCache])
 
   useEffect(() => { if (status === 'authenticated') load() }, [status, load])
 
@@ -362,6 +385,36 @@ function DashboardPage() {
   }, [])
 
   useEffect(() => { if (status === 'authenticated') checkWorker() }, [status, checkWorker])
+
+  // -- Keyboard Shortcuts --
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+
+      if (e.ctrlKey && e.key === 'a') {
+        e.preventDefault()
+        const allIds = new Set([...files.map(f => f._id), ...folders.map(f => f._id)])
+        if (allIds.size > 0) {
+          setSelectedIds(allIds)
+          setSelectMode(true)
+        }
+      } else if (e.key === 'Delete' && selectedIds.size > 0) {
+        setShowBulkDeleteModal(true)
+      } else if (e.key === 'Escape') {
+        setSelectMode(false)
+        setSelectedIds(new Set())
+        setContextMenu(null)
+      } else if (e.key === 'F2' && selectedIds.size === 1) {
+        const id = Array.from(selectedIds)[0]
+        const file = files.find(f => f._id === id)
+        const folder = folders.find(f => f._id === id)
+        if (file) { setRenameTarget(file); setRenameVal(file.name) }
+        else if (folder) { setRenameFolderTarget(folder); setRenameFolderVal(folder.name) }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [files, folders, selectedIds])
 
   const handleNavChange = (nav: NavItem) => {
     setActiveNav(nav)
@@ -420,17 +473,19 @@ function DashboardPage() {
 
   async function confirmDeleteFolder() {
     if (!deleteFolderTarget) return
-    const r = await fetch(`/api/folders?folderId=${deleteFolderTarget._id}`, { method: 'DELETE' })
-    if (r.ok) { toast(`Folder "${deleteFolderTarget.name}" dihapus`, 'success'); setDeleteFolderTarget(null); load() }
-    else { toast('Gagal menghapus folder', 'error'); setDeleteFolderTarget(null) }
+    const isPermanent = activeNav === 'Tempat Sampah'
+    const r = await fetch(`/api/folders?folderId=${deleteFolderTarget._id}${isPermanent ? '&permanent=true' : ''}`, { method: 'DELETE' })
+    if (r.ok) { toast(`Folder "${deleteFolderTarget.name}" ${isPermanent ? 'dihapus permanen' : 'dipindahkan ke tempat sampah'}`, 'success'); setDeleteFolderTarget(null); load() }
+    else { const d = await r.json(); toast(d.error || 'Gagal menghapus folder', 'error'); setDeleteFolderTarget(null) }
   }
 
   async function handleDeleteFile() {
     if (!deleteTarget) return
     setDeleteLoading(true)
     try {
-      const r = await fetch(`/api/files?fileId=${deleteTarget._id}`, { method: 'DELETE' })
-      if (r.ok) { toast(`"${deleteTarget.name}" dihapus`, 'success'); setDeleteTarget(null); load() }
+      const isPermanent = activeNav === 'Tempat Sampah'
+      const r = await fetch(`/api/files?fileId=${deleteTarget._id}${isPermanent ? '&permanent=true' : ''}`, { method: 'DELETE' })
+      if (r.ok) { toast(`"${deleteTarget.name}" ${isPermanent ? 'dihapus permanen' : 'dipindahkan ke tempat sampah'}`, 'success'); setDeleteTarget(null); load() }
       else toast('Gagal menghapus file', 'error')
     } finally {
       setDeleteLoading(false)
@@ -505,14 +560,51 @@ function DashboardPage() {
     if (selectedIds.size === 0) return
     setShowBulkDeleteModal(false)
     setActionLoading(true)
+    const isPermanent = activeNav === 'Tempat Sampah'
     try {
-      const r = await fetch('/api/files', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileIds: Array.from(selectedIds) })
-      })
-      if (r.ok) { toast(`${selectedIds.size} file dihapus`, 'success'); load(); exitSelectMode() }
-      else toast('Gagal menghapus file', 'error')
+      const fileIds = Array.from(selectedIds).filter(id => files.some(f => f._id === id))
+      const folderIds = Array.from(selectedIds).filter(id => folders.some(f => f._id === id))
+      
+      const promises = []
+      if (fileIds.length > 0) {
+        promises.push(fetch(`/api/files${isPermanent ? '?permanent=true' : ''}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileIds })
+        }))
+      }
+      for (const fId of folderIds) {
+        promises.push(fetch(`/api/folders?folderId=${fId}${isPermanent ? '&permanent=true' : ''}`, { method: 'DELETE' }))
+      }
+      
+      await Promise.all(promises)
+      toast(`${selectedIds.size} item ${isPermanent ? 'dihapus permanen' : 'dipindahkan ke tempat sampah'}`, 'success')
+      load()
+      exitSelectMode()
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  async function handleRestoreSelected() {
+    if (selectedIds.size === 0) return
+    setActionLoading(true)
+    try {
+      const fileIds = Array.from(selectedIds).filter(id => files.some(f => f._id === id))
+      const folderIds = Array.from(selectedIds).filter(id => folders.some(f => f._id === id))
+      
+      const promises = []
+      for (const id of fileIds) {
+        promises.push(fetch('/api/files', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fileId: id, isDeleted: false }) }))
+      }
+      for (const id of folderIds) {
+        promises.push(fetch('/api/folders', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folderId: id, isDeleted: false }) }))
+      }
+      
+      await Promise.all(promises)
+      toast(`${selectedIds.size} item dipulihkan`, 'success')
+      load()
+      exitSelectMode()
     } finally {
       setActionLoading(false)
     }
@@ -554,8 +646,24 @@ function DashboardPage() {
     }
   }
 
-  const filteredFiles = files.filter(f => f.name.toLowerCase().includes(search.toLowerCase()))
-  const filteredFolders = activeNav === 'My Drive' ? folders.filter(f => f.name.toLowerCase().includes(search.toLowerCase())) : []
+  // --- Sorting Logic ---
+  const sortedFiles = [...files].sort((a, b) => {
+    let diff = 0
+    if (sortBy === 'name') diff = a.name.localeCompare(b.name)
+    else if (sortBy === 'size') diff = a.size - b.size
+    else diff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    return sortOrder === 'asc' ? diff : -diff
+  })
+  
+  const sortedFolders = [...folders].sort((a, b) => {
+    let diff = 0
+    if (sortBy === 'name') diff = a.name.localeCompare(b.name)
+    else diff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    return sortOrder === 'asc' ? diff : -diff
+  })
+
+  const filteredFiles = sortedFiles.filter(f => f.name.toLowerCase().includes(search.toLowerCase()))
+  const filteredFolders = activeNav === 'My Drive' ? sortedFolders.filter(f => f.name.toLowerCase().includes(search.toLowerCase())) : []
   const isEmpty = !loading && filteredFiles.length === 0 && filteredFolders.length === 0
 
   const containerAnimation = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } }
@@ -638,6 +746,25 @@ function DashboardPage() {
                 placeholder="Cari file..."
                 className="w-full bg-slate-900/50 border border-slate-800 rounded-xl py-2 pl-9 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
               />
+            </div>
+
+            <div className="flex bg-slate-900/80 border border-slate-800 rounded-lg p-0.5 mr-2">
+              <select 
+                value={sortBy} 
+                onChange={e => setSortBy(e.target.value as any)}
+                className="bg-transparent text-slate-300 text-sm px-2 focus:outline-none cursor-pointer"
+              >
+                <option value="date" className="bg-slate-900">Tanggal</option>
+                <option value="name" className="bg-slate-900">Nama</option>
+                <option value="size" className="bg-slate-900">Ukuran</option>
+              </select>
+              <button 
+                onClick={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')} 
+                className="p-1.5 text-slate-500 hover:text-slate-300"
+                title={sortOrder === 'asc' ? 'Menaik' : 'Menurun'}
+              >
+                {sortOrder === 'asc' ? '↑' : '↓'}
+              </button>
             </div>
 
             <div className="flex bg-slate-900/80 border border-slate-800 rounded-lg p-0.5">
@@ -733,7 +860,30 @@ function DashboardPage() {
                   <motion.div key={f._id} variants={itemAnimation} className="group relative">
                     <button
                       onClick={() => openFolder(f)}
-                      className="w-full text-left bg-slate-900/40 border border-slate-800 rounded-2xl p-4 hover:bg-slate-800/60 hover:border-slate-700 transition-all duration-200"
+                      onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, file: null, folder: f }) }}
+                      onDragOver={(e) => { e.preventDefault(); setDragOverFolderId(f._id) }}
+                      onDragLeave={(e) => { e.preventDefault(); setDragOverFolderId(null) }}
+                      onDrop={async (e) => {
+                        e.preventDefault()
+                        setDragOverFolderId(null)
+                        const filesToMove = Array.from(selectedIds)
+                        if (filesToMove.length > 0) {
+                          setActionLoading(true)
+                          try {
+                            await Promise.all(filesToMove.map(id =>
+                              fetch('/api/files', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ fileId: id, folderId: f._id }),
+                              })
+                            ))
+                            toast(`${filesToMove.length} file dipindahkan`, 'success')
+                            load(true)
+                            exitSelectMode()
+                          } finally { setActionLoading(false) }
+                        }
+                      }}
+                      className={`w-full text-left bg-slate-900/40 border ${dragOverFolderId === f._id ? 'border-cyan-400 bg-cyan-900/30' : 'border-slate-800'} rounded-2xl p-4 hover:bg-slate-800/60 hover:border-slate-700 transition-all duration-200`}
                     >
                       <FolderIcon size={32} className="text-cyan-400 mb-3 fill-cyan-400/20" strokeWidth={1.5} />
                       <div className="font-medium text-slate-200 truncate mb-1">{f.name}</div>
@@ -775,7 +925,12 @@ function DashboardPage() {
                     return (
                       <motion.div
                         key={f._id} variants={itemAnimation}
+                        draggable
+                        onDragStart={(e) => {
+                          if (!selectedIds.has(f._id)) setSelectedIds(new Set([f._id]))
+                        }}
                         onClick={() => { if (selectMode) { toggleSelect(f._id) } else if (previewable) { setViewerFile(f) } }}
+                        onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, file: f, folder: null }) }}
                         className={`group relative bg-slate-900/40 border rounded-2xl p-4 cursor-pointer transition-all duration-200 ${
                           isSelected ? 'border-cyan-500 bg-cyan-500/5' : 'border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
                         }`}
@@ -1036,6 +1191,55 @@ function DashboardPage() {
 
       <AccountModal open={showAccount} onClose={() => setShowAccount(false)} />
 
+      {/* Context Menu */}
+      <AnimatePresence>
+        {contextMenu && (
+          <>
+            <div className="fixed inset-0 z-[60]" onClick={(e) => { e.stopPropagation(); setContextMenu(null) }} onContextMenu={(e) => { e.preventDefault(); setContextMenu(null) }} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.1 }}
+              style={{ top: Math.min(contextMenu.y, window.innerHeight - 200), left: Math.min(contextMenu.x, window.innerWidth - 200) }}
+              className="fixed z-[70] w-48 py-1.5 bg-slate-900/95 border border-slate-700 rounded-xl shadow-2xl backdrop-blur-xl"
+            >
+              {contextMenu.file && (
+                <>
+                  {activeNav !== 'Tempat Sampah' ? (
+                    <>
+                      <button onClick={() => { setViewerFile(contextMenu.file); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"><Eye size={16}/> Buka</button>
+                      <button onClick={() => { setShareTarget(contextMenu.file); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"><Share2 size={16}/> Bagikan</button>
+                      <button onClick={() => { const a = document.createElement('a'); a.href = `/api/download?fileId=${contextMenu.file?._id}`; a.target = '_blank'; a.click(); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"><Download size={16}/> Download</button>
+                      <button onClick={() => { setRenameTarget(contextMenu.file); setRenameVal(contextMenu.file?.name || ''); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"><Pencil size={16}/> Ganti Nama</button>
+                      <div className="h-px bg-slate-800/50 my-1" />
+                    </>
+                  ) : (
+                    <button onClick={() => {
+                      fetch('/api/files', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fileId: contextMenu.file?._id, isDeleted: false }) }).then(() => { toast('File dipulihkan', 'success'); load(); setContextMenu(null) })
+                    }} className="w-full px-4 py-2 text-left text-sm text-emerald-400 hover:bg-slate-800 hover:text-emerald-300 flex items-center gap-2"><RefreshCw size={16}/> Pulihkan</button>
+                  )}
+                  <button onClick={() => { setDeleteTarget(contextMenu.file); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-rose-400 hover:bg-slate-800 hover:text-rose-300 flex items-center gap-2"><Trash2 size={16}/> {activeNav === 'Tempat Sampah' ? 'Hapus Permanen' : 'Hapus'}</button>
+                </>
+              )}
+              {contextMenu.folder && (
+                <>
+                  {activeNav !== 'Tempat Sampah' ? (
+                    <>
+                      <button onClick={() => { openFolder(contextMenu.folder!); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"><FolderIcon size={16}/> Buka Folder</button>
+                      <button onClick={() => { setRenameFolderTarget(contextMenu.folder); setRenameFolderVal(contextMenu.folder?.name || ''); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"><Pencil size={16}/> Ganti Nama</button>
+                      <div className="h-px bg-slate-800/50 my-1" />
+                    </>
+                  ) : (
+                    <button onClick={() => {
+                      fetch('/api/folders', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folderId: contextMenu.folder?._id, isDeleted: false }) }).then(() => { toast('Folder dipulihkan', 'success'); load(); setContextMenu(null) })
+                    }} className="w-full px-4 py-2 text-left text-sm text-emerald-400 hover:bg-slate-800 hover:text-emerald-300 flex items-center gap-2"><RefreshCw size={16}/> Pulihkan</button>
+                  )}
+                  <button onClick={() => { setDeleteFolderTarget(contextMenu.folder); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-rose-400 hover:bg-slate-800 hover:text-rose-300 flex items-center gap-2"><Trash2 size={16}/> {activeNav === 'Tempat Sampah' ? 'Hapus Permanen' : 'Hapus'}</button>
+                </>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Multi-select Action Bar */}
       <AnimatePresence>
         {selectMode && selectedIds.size > 0 && (
@@ -1048,18 +1252,27 @@ function DashboardPage() {
             <div className="px-4 text-sm font-medium text-white flex items-center gap-2 border-r border-slate-700 shrink-0">
               <span className="w-5 h-5 rounded bg-cyan-500 text-slate-900 flex items-center justify-center text-xs font-bold">{selectedIds.size}</span>
             </div>
+            {activeNav === 'Tempat Sampah' && (
+              <button onClick={handleRestoreSelected} disabled={actionLoading} className="btn bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
+                <RefreshCw size={16} /> <span className="hidden sm:inline">Pulihkan</span>
+              </button>
+            )}
             <button onClick={handleDeleteSelected} disabled={actionLoading} className="btn bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
-              <Trash2 size={16} /> <span className="hidden sm:inline">Hapus</span>
+              <Trash2 size={16} /> <span className="hidden sm:inline">{activeNav === 'Tempat Sampah' ? 'Hapus Permanen' : 'Hapus'}</span>
             </button>
-            <button onClick={() => setShowMoveModal(true)} disabled={actionLoading} className="btn bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
-              <MoveRight size={16} /> <span className="hidden sm:inline">Pindahkan</span>
-            </button>
-            <button onClick={handleStarSelected} disabled={actionLoading} className="btn bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
-              <Star size={16} /> <span className="hidden sm:inline">Bintang</span>
-            </button>
-            <button onClick={handleDownloadSelected} disabled={actionLoading} className="btn bg-slate-700/50 hover:bg-slate-700 text-slate-300 border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
-              <Download size={16} /> <span className="hidden sm:inline">Download</span>
-            </button>
+            {activeNav !== 'Tempat Sampah' && (
+              <>
+                <button onClick={() => setShowMoveModal(true)} disabled={actionLoading} className="btn bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
+                  <MoveRight size={16} /> <span className="hidden sm:inline">Pindahkan</span>
+                </button>
+                <button onClick={handleStarSelected} disabled={actionLoading} className="btn bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
+                  <Star size={16} /> <span className="hidden sm:inline">Bintang</span>
+                </button>
+                <button onClick={handleDownloadSelected} disabled={actionLoading} className="btn bg-slate-700/50 hover:bg-slate-700 text-slate-300 border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
+                  <Download size={16} /> <span className="hidden sm:inline">Download</span>
+                </button>
+              </>
+            )}
             <div className="w-px h-6 bg-slate-700 mx-1 shrink-0" />
             <button onClick={exitSelectMode} className="p-2 rounded-xl hover:bg-slate-700 text-slate-400 hover:text-white transition-colors shrink-0 mr-1">
               <X size={18} />

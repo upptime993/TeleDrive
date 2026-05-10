@@ -15,6 +15,7 @@ export interface IFile extends Document {
   folderId: Types.ObjectId | null
   isChunked: boolean
   isStarred: boolean
+  isDeleted: boolean
   telegramFileId: string | null
   telegramMsgId: number | null
   chunks: IChunk[]
@@ -41,6 +42,7 @@ const FileSchema = new Schema<IFile>(
     folderId: { type: Schema.Types.ObjectId, ref: 'Folder', default: null },
     isChunked: { type: Boolean, default: false },
     isStarred: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
     telegramFileId: { type: String, default: null },
     telegramMsgId: { type: Number, default: null },
     chunks: { type: [ChunkSchema], default: [] },

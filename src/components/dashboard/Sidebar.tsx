@@ -3,13 +3,13 @@
 import { useSession, signOut } from 'next-auth/react'
 import {
   Cloud, Folder, Wifi, WifiOff, LogOut, RefreshCw, HardDrive, Star, Clock, Users, Activity, X,
-  Image as ImageIcon, Film, FileText
+  Image as ImageIcon, Film, FileText, Trash2
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState, useMemo } from 'react'
 
-export type NavItem = 'My Drive' | 'Recent' | 'Starred' | 'Shared with me' | 'Foto' | 'Video' | 'Document';
+export type NavItem = 'My Drive' | 'Recent' | 'Starred' | 'Shared with me' | 'Foto' | 'Video' | 'Document' | 'Tempat Sampah';
 
 interface SidebarProps {
   workerStatus: 'online' | 'offline' | 'checking'
@@ -52,6 +52,7 @@ export default function Sidebar({ workerStatus, onRefreshWorker, isOpen, onClose
     { icon: Clock, label: 'Recent' },
     { icon: Star, label: 'Starred' },
     { icon: Users, label: 'Shared with me' },
+    { icon: Trash2, label: 'Tempat Sampah' },
   ]
 
   const SidebarContent = (

@@ -41,21 +41,26 @@ export async function GET(request: NextRequest) {
 
     let query: any = { userId: session.user.id }
 
-    if (filter === 'starred') {
-      query.isStarred = true
-    } else if (filter === 'recent') {
-      // no extra filter — sort by createdAt desc
-    } else if (filter === 'foto') {
-      query.mimeType = { $regex: '^image/' }
-    } else if (filter === 'video') {
-      query.mimeType = { $regex: '^video/' }
-    } else if (filter === 'document') {
-      query.mimeType = {
-        $regex:
-          '^(application/pdf|text/|application/msword|application/vnd\\.openxmlformats-officedocument.*|application/json)',
+    if (filter === 'trash') {
+      query.isDeleted = true
+    } else {
+      query.isDeleted = false
+      if (filter === 'starred') {
+        query.isStarred = true
+      } else if (filter === 'recent') {
+        // no extra filter — sort by createdAt desc
+      } else if (filter === 'foto') {
+        query.mimeType = { $regex: '^image/' }
+      } else if (filter === 'video') {
+        query.mimeType = { $regex: '^video/' }
+      } else if (filter === 'document') {
+        query.mimeType = {
+          $regex:
+            '^(application/pdf|text/|application/msword|application/vnd\\.openxmlformats-officedocument.*|application/json)',
+        }
+      } else if (folderId !== 'all') {
+        query.folderId = folderId || null
       }
-    } else if (folderId !== 'all') {
-      query.folderId = folderId || null
     }
 
     const [files, total] = await Promise.all([
@@ -86,18 +91,24 @@ export async function DELETE(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const fileId = searchParams.get('fileId')
+    const permanent = searchParams.get('permanent') === 'true'
 
     if (fileId) {
       const file = await FileModel.findOne({ _id: fileId, userId: session.user.id }).lean() as any
       if (!file) {
         return NextResponse.json({ error: 'File tidak ditemukan' }, { status: 404 })
       }
-      await FileModel.deleteOne({ _id: fileId, userId: session.user.id })
-      await ShareLink.deleteMany({ fileId })
-      const msgIds = collectMsgIds(file)
-      // [FIX SEC-01] Await agar tidak fire-and-forget — file Telegram benar-benar terhapus
-      await deleteTelegramMessages(msgIds)
-      return NextResponse.json({ success: true, message: 'File berhasil dihapus' })
+      
+      if (permanent) {
+        await FileModel.deleteOne({ _id: fileId, userId: session.user.id })
+        await ShareLink.deleteMany({ fileId })
+        const msgIds = collectMsgIds(file)
+        await deleteTelegramMessages(msgIds)
+        return NextResponse.json({ success: true, message: 'File dihapus permanen' })
+      } else {
+        await FileModel.updateOne({ _id: fileId, userId: session.user.id }, { $set: { isDeleted: true } })
+        return NextResponse.json({ success: true, message: 'File dipindahkan ke tempat sampah' })
+      }
     }
 
     const body = await request.json().catch(() => null)
@@ -112,13 +123,17 @@ export async function DELETE(request: NextRequest) {
       }
 
       const foundIds = files.map((f: any) => f._id)
-      await FileModel.deleteMany({ _id: { $in: foundIds }, userId: session.user.id })
-      await ShareLink.deleteMany({ fileId: { $in: foundIds } })
-      const allMsgIds = files.flatMap(collectMsgIds)
-      // [FIX SEC-01] Await agar tidak fire-and-forget
-      await deleteTelegramMessages(allMsgIds)
-
-      return NextResponse.json({ success: true, message: `${files.length} file berhasil dihapus` })
+      
+      if (permanent) {
+        await FileModel.deleteMany({ _id: { $in: foundIds }, userId: session.user.id })
+        await ShareLink.deleteMany({ fileId: { $in: foundIds } })
+        const allMsgIds = files.flatMap(collectMsgIds)
+        await deleteTelegramMessages(allMsgIds)
+        return NextResponse.json({ success: true, message: `${files.length} file dihapus permanen` })
+      } else {
+        await FileModel.updateMany({ _id: { $in: foundIds }, userId: session.user.id }, { $set: { isDeleted: true } })
+        return NextResponse.json({ success: true, message: `${files.length} file dipindahkan ke tempat sampah` })
+      }
     }
 
     return NextResponse.json({ error: 'fileId atau fileIds wajib diisi' }, { status: 400 })
@@ -161,6 +176,9 @@ export async function PATCH(request: NextRequest) {
         }
       }
       updateData.folderId = body.folderId
+    }
+    if (typeof body.isDeleted === 'boolean') {
+      updateData.isDeleted = body.isDeleted
     }
 
     if (!Object.keys(updateData).length) {

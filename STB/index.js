@@ -18,7 +18,12 @@ app.use(express.json({ limit: '1mb' }));
 // 🛡️ SECURITY: Validate WORKER_SECRET on all non-health endpoints.
 // Prevents unauthorized direct access to the Telegram backend even if
 // worker URLs are discovered (defense-in-depth).
-const WORKER_SECRET = process.env.WORKER_SECRET || '';
+//
+// NOTE: Di OpenWrt/STB, .env sering tidak terload dengan benar.
+// WORKER_SECRET di-pass via ecosystem.config.cjs (env block PM2).
+// Fallback hardcode di bawah HANYA jika PM2 env juga gagal.
+// ⚠️  Ganti nilai fallback ini sesuai WORKER_SECRET di Vercel!
+const WORKER_SECRET = process.env.WORKER_SECRET || 'rahasia_bersama_12345';
 
 function requireWorkerSecret(req, res, next) {
   if (!WORKER_SECRET) return next(); // Skip if no secret configured (dev mode)

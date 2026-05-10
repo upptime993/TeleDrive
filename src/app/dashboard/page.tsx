@@ -796,23 +796,23 @@ function DashboardPage() {
                         </div>
 
                         {!selectMode && (
-                          <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={(e) => { e.stopPropagation(); toggleStar(f) }} className="p-1.5 rounded-lg bg-slate-800/80 backdrop-blur text-amber-400 hover:text-amber-300 hover:bg-slate-700" title={f.isStarred ? 'Hapus bintang' : 'Bintangi'}>
+                          <div className="absolute top-2 right-2 grid grid-cols-2 gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/90 backdrop-blur p-1.5 rounded-xl border border-slate-700/50 shadow-xl z-10">
+                            <button onClick={(e) => { e.stopPropagation(); toggleStar(f) }} className="p-1.5 rounded-md text-amber-400 hover:bg-slate-800 transition-colors flex items-center justify-center" title={f.isStarred ? 'Hapus bintang' : 'Bintangi'}>
                               {f.isStarred ? <StarOff size={14} /> : <Star size={14} />}
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); setShareTarget(f) }} className="p-1.5 rounded-lg bg-slate-800/80 backdrop-blur text-cyan-400 hover:text-cyan-300 hover:bg-slate-700" title="Bagikan">
+                            <button onClick={(e) => { e.stopPropagation(); setShareTarget(f) }} className="p-1.5 rounded-md text-cyan-400 hover:bg-slate-800 transition-colors flex items-center justify-center" title="Bagikan">
                               <Share2 size={14} />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); handleMoveSingleFile(f) }} className="p-1.5 rounded-lg bg-slate-800/80 backdrop-blur text-indigo-400 hover:text-indigo-300 hover:bg-slate-700" title="Pindahkan">
+                            <button onClick={(e) => { e.stopPropagation(); handleMoveSingleFile(f) }} className="p-1.5 rounded-md text-indigo-400 hover:bg-slate-800 transition-colors flex items-center justify-center" title="Pindahkan">
                               <MoveRight size={14} />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); window.open(`/api/download?fileId=${f._id}`, '_blank') }} className="p-1.5 rounded-lg bg-slate-800/80 backdrop-blur text-slate-300 hover:text-white hover:bg-slate-700" title="Download">
+                            <button onClick={(e) => { e.stopPropagation(); window.open(`/api/download?fileId=${f._id}`, '_blank') }} className="p-1.5 rounded-md text-emerald-400 hover:bg-slate-800 transition-colors flex items-center justify-center" title="Download">
                               <Download size={14} />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); setRenameTarget(f); setRenameVal(f.name) }} className="p-1.5 rounded-lg bg-slate-800/80 backdrop-blur text-slate-300 hover:text-white hover:bg-slate-700" title="Ganti nama">
+                            <button onClick={(e) => { e.stopPropagation(); setRenameTarget(f); setRenameVal(f.name) }} className="p-1.5 rounded-md text-slate-300 hover:bg-slate-800 transition-colors flex items-center justify-center" title="Ganti nama">
                               <Pencil size={14} />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(f) }} className="p-1.5 rounded-lg bg-rose-500/20 backdrop-blur text-rose-400 hover:bg-rose-500/30" title="Hapus">
+                            <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(f) }} className="p-1.5 rounded-md text-rose-400 hover:bg-rose-500/20 transition-colors flex items-center justify-center" title="Hapus">
                               <Trash2 size={14} />
                             </button>
                           </div>

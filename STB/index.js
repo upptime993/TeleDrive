@@ -88,7 +88,7 @@ async function downloadChunkWithRetry(id, maxRetries = 3) {
       const messages = await client.getMessages('me', { ids: [id] });
       const msg = messages?.[0];
       if (!msg?.media) throw new Error(`msgId=${id} tidak ada media`);
-      const buffer = await client.downloadMedia(msg.media, {});
+      const buffer = await client.downloadMedia(msg.media, { workers: 3 });
       if (!buffer || buffer.length === 0) throw new Error(`Buffer kosong untuk msgId=${id}`);
       return buffer;
     } catch (e) {
@@ -139,6 +139,7 @@ app.post('/upload-chunk', async (req, res) => {
       file: fileBuffer,
       caption: `TeleDrive|chunk|part=${part}|total=${totalParts}|name=${name}`,
       forceDocument: true,
+      workers: 3,
       attributes: [],
     });
 
@@ -171,6 +172,7 @@ app.post('/upload', async (req, res) => {
       file: fileBuffer,
       caption: `TeleDrive|single|name=${fileName}`,
       forceDocument: true,
+      workers: 3,
     });
 
     console.log(`[upload] SUKSES fileName=${fileName} msgId=${result.id}`);

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
-import { Fredoka, Nunito_Sans } from 'next/font/google'
+import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
 import Providers from './providers'
 
@@ -10,20 +10,16 @@ const geistMono = localFont({
   weight: '100 900',
 })
 
-const fredoka = Fredoka({
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-heading',
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-  adjustFontFallback: false,
+  variable: '--font-inter',
+  weight: ['300', '400', '500', '600', '700'],
 })
 
-const nunitoSans = Nunito_Sans({
+const playfairDisplay = Playfair_Display({
   subsets: ['latin'],
-  variable: '--font-sans',
-  weight: ['400', '500', '600', '700', '800'],
-  display: 'swap',
-  adjustFontFallback: false,
+  variable: '--font-display',
+  weight: ['400', '500'],
 })
 
 export const metadata: Metadata = {
@@ -34,7 +30,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body className={`${geistMono.variable} ${fredoka.variable} ${nunitoSans.variable} antialiased`}>
+      <body className={`${geistMono.variable} ${inter.variable} ${playfairDisplay.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

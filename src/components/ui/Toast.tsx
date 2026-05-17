@@ -28,13 +28,6 @@ const icons = {
   warning: AlertTriangle,
 }
 
-const colors = {
-  success: { border: '#58cc02', iconColor: '#58cc02' },
-  error:   { border: '#cc348d', iconColor: '#cc348d' },
-  info:    { border: '#1cb0f6', iconColor: '#1cb0f6' },
-  warning: { border: '#ffc700', iconColor: '#b87d00' },
-}
-
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
   const timerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
@@ -65,7 +58,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       >
         {toasts.map(t => {
           const Icon = icons[t.type]
-          const c = colors[t.type]
           return (
             <div
               key={t.id}
@@ -73,29 +65,28 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '12px 16px',
-                background: '#ffffff',
-                border: `2px solid ${c.border}`,
-                borderRadius: 12,
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                background: '#121317',
+                border: '1px solid rgba(255,255,255,0.10)',
+                borderRadius: 10,
+                boxShadow: 'none',
                 maxWidth: 360,
                 pointerEvents: 'all',
               }}
             >
-              <Icon size={16} color={c.iconColor} style={{ flexShrink: 0 }} />
-              <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#3c3c3c', lineHeight: 1.4 }}>
+              <Icon size={16} color="#acafb9" style={{ flexShrink: 0 }} />
+              <span style={{ fontSize: '14px', fontWeight: 400, color: '#e2e3e9', lineHeight: 1.43, letterSpacing: '-0.013px' }}>
                 {t.message}
               </span>
               <button
                 onClick={() => dismiss(t.id)}
                 style={{
                   marginLeft: 4, background: 'none', border: 'none',
-                  cursor: 'pointer', color: '#afafaf', flexShrink: 0,
+                  cursor: 'pointer', color: '#5e616e', flexShrink: 0,
                   display: 'flex', alignItems: 'center', padding: 2,
-                  borderRadius: 4,
-                  transition: 'color 150ms',
+                  borderRadius: 4, transition: 'color 150ms',
                 }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#cc348d' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#afafaf' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
                 aria-label="Dismiss"
               >
                 <X size={14} />

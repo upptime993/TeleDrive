@@ -1,24 +1,24 @@
 'use client'
 
 import { useCallback, useRef, useState } from 'react'
-import { Upload, X, AlertCircle, Loader2 } from 'lucide-react'
+import { Upload, X, AlertCircle } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 
-const CHUNK_SIZE = 4 * 1024 * 1024 // 4MB per chunk (sama dengan UploadManager)
+const CHUNK_SIZE = 4 * 1024 * 1024
 
 interface UploadItem {
   id: string
   file: File
   status: 'pending' | 'uploading' | 'done' | 'error'
-  progress: number // 0-100
+  progress: number
   speed: string
   error?: string
 }
 
 interface UploadZoneProps {
   folderId: string | null
-  workerUrls?: string[] | null   // array of worker URLs (support dual-worker)
-  workerUrl?: string | null      // backward-compat (dikonversi ke array)
+  workerUrls?: string[] | null
+  workerUrl?: string | null
   onUploadComplete: () => void
 }
 
@@ -37,79 +37,59 @@ async function uploadFileChunked(
   const totalChunks = Math.ceil(file.size / CHUNK_SIZE)
   const chunks: { part: number; msgId: number; size: number }[] = []
   let uploadedBytes = 0
-
   const t0 = Date.now()
-  const maxConcurrent = 3;
-  let currentChunk = 0;
-
-  const workerEndpoint = workerUrl ? `${workerUrl}/upload-chunk` : '/api/upload-chunk';
+  const maxConcurrent = 3
+  let currentChunk = 0
+  const workerEndpoint = workerUrl ? `${workerUrl}/upload-chunk` : '/api/upload-chunk'
 
   const uploadNext = async (): Promise<void> => {
-    if (currentChunk >= totalChunks) return;
-    const i = currentChunk++;
-
+    if (currentChunk >= totalChunks) return
+    const i = currentChunk++
     const start = i * CHUNK_SIZE
     const end = Math.min(start + CHUNK_SIZE, file.size)
     const blob = file.slice(start, end)
-
     const fd = new FormData()
     fd.append('chunk', blob, file.name)
     fd.append('part', String(i))
     fd.append('totalParts', String(totalChunks))
     fd.append('fileName', file.name)
-
-    let res: Response;
-
+    let res: Response
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         res = await fetch(workerEndpoint, { method: 'POST', body: fd })
-        if (res.ok) break;
+        if (res.ok) break
       } catch (e) {
         if (attempt === 2) throw new Error(`Chunk ${i} gagal setelah 3 percobaan`)
         await new Promise(r => setTimeout(r, 2000 * (attempt + 1)))
       }
     }
-
     if (!res!.ok) {
       const err = await res!.json().catch(() => ({ error: 'STB error' }))
       throw new Error(err.error || `Chunk ${i} gagal`)
     }
-
     const data = await res!.json()
     chunks.push({ part: i, msgId: data.msgId, size: blob.size })
-
     uploadedBytes += blob.size
     const elapsed = (Date.now() - t0) / 1000
     const speed = formatSpeed(uploadedBytes / elapsed)
     const pct = Math.round((uploadedBytes / file.size) * 95)
     onProgress(pct, speed)
-
-    return uploadNext();
-  };
-
-  const workers = [];
-  for (let w = 0; w < maxConcurrent; w++) {
-    workers.push(uploadNext());
+    return uploadNext()
   }
-  await Promise.all(workers);
+
+  const workers = []
+  for (let w = 0; w < maxConcurrent; w++) workers.push(uploadNext())
+  await Promise.all(workers)
 
   const saveRes = await fetch('/api/upload-complete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      fileName: file.name,
-      fileSize: file.size,
-      mimeType: file.type || 'application/octet-stream',
-      folderId,
-      chunks,
-    }),
+    body: JSON.stringify({ fileName: file.name, fileSize: file.size, mimeType: file.type || 'application/octet-stream', folderId, chunks }),
   })
-
   if (!saveRes.ok) {
     const err = await saveRes.json().catch(() => ({ error: 'Gagal simpan metadata' }))
     throw new Error(err.error)
   }
-
   onProgress(100, '')
 }
 
@@ -118,7 +98,6 @@ export default function UploadZone({ folderId, workerUrls, workerUrl, onUploadCo
   const [items, setItems] = useState<UploadItem[]>([])
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-
   const effectiveWorkerUrls: string[] = workerUrls ?? (workerUrl ? [workerUrl] : [])
 
   const update = useCallback((id: string, patch: Partial<UploadItem>) => {
@@ -127,20 +106,14 @@ export default function UploadZone({ folderId, workerUrls, workerUrl, onUploadCo
 
   const startUpload = useCallback(async (files: File[]) => {
     const newItems: UploadItem[] = files.map(f => ({
-      id: Math.random().toString(36).slice(2),
-      file: f,
-      status: 'pending',
-      progress: 0,
-      speed: '',
+      id: Math.random().toString(36).slice(2), file: f, status: 'pending', progress: 0, speed: '',
     }))
     setItems(p => [...p, ...newItems])
-
     for (const item of newItems) {
       update(item.id, { status: 'uploading' })
       try {
         await uploadFileChunked(
-          item.file,
-          folderId,
+          item.file, folderId,
           effectiveWorkerUrls.length > 0 ? effectiveWorkerUrls[0] : null,
           (pct, speed) => update(item.id, { progress: pct, speed }),
         )
@@ -171,79 +144,70 @@ export default function UploadZone({ folderId, workerUrls, workerUrl, onUploadCo
         onDragLeave={() => setDragging(false)}
         onDrop={e => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files) }}
         style={{
-          border: `2px dashed ${dragging ? '#58cc02' : '#e5e5e5'}`,
-          borderRadius: 12,
+          border: `1px dashed ${dragging ? 'rgba(255,255,255,0.30)' : 'rgba(255,255,255,0.10)'}`,
+          borderRadius: 10,
           padding: '32px 24px',
           textAlign: 'center',
           cursor: 'pointer',
-          background: dragging ? '#f7fff0' : '#ffffff',
+          background: dragging ? '#121317' : 'transparent',
           transition: 'all 200ms',
         }}
         role="button"
         aria-label="Klik atau drag file untuk upload"
       >
-        <Upload size={28} color={dragging ? '#58cc02' : '#afafaf'} style={{ margin: '0 auto 12px' }} />
-        <p style={{ color: '#777777', fontSize: '0.875rem', margin: 0, fontWeight: 500 }}>
-          <span style={{ color: '#58cc02', fontWeight: 700 }}>Klik untuk pilih file</span>
+        <Upload size={24} color={dragging ? '#ffffff' : '#5e616e'} style={{ margin: '0 auto 12px' }} />
+        <p style={{ color: '#acafb9', fontSize: '14px', margin: 0 }}>
+          <span style={{ color: '#ffffff', fontWeight: 600 }}>Klik untuk pilih file</span>
           {' '}atau drag & drop di sini
         </p>
-        <p style={{ color: '#afafaf', fontSize: '0.75rem', marginTop: 6 }}>
+        <p style={{ color: '#5e616e', fontSize: '12px', marginTop: 6 }}>
           Semua format didukung — file besar otomatis dipecah per chunk
         </p>
       </div>
-      <input
-        ref={inputRef}
-        type="file"
-        multiple
-        style={{ display: 'none' }}
-        onChange={e => handleFiles(e.target.files)}
-      />
+      <input ref={inputRef} type="file" multiple style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} />
 
       {/* Upload progress list */}
       {activeItems.length > 0 && (
-        <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
           {activeItems.map(item => (
             <div
               key={item.id}
               style={{
-                background: '#ffffff',
-                border: `2px solid ${item.status === 'error' ? '#cc348d' : '#e5e5e5'}`,
-                borderRadius: 12,
-                padding: '12px 14px',
+                background: '#08080a',
+                border: `1px solid ${item.status === 'error' ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.05)'}`,
+                borderRadius: 10,
+                padding: '10px 12px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {item.status === 'uploading' && (
-                  <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid #e5e5e5', borderTopColor: '#58cc02', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.10)', borderTopColor: '#ffffff', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
                 )}
-                {item.status === 'error' && <AlertCircle size={16} color="#cc348d" style={{ flexShrink: 0 }} />}
-                <span style={{ flex: 1, fontSize: '0.8125rem', color: '#3c3c3c', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {item.status === 'error' && <AlertCircle size={14} color="#acafb9" style={{ flexShrink: 0 }} />}
+                <span style={{ flex: 1, fontSize: '13px', color: '#e2e3e9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {item.file.name}
                 </span>
-                <span style={{ fontSize: '0.75rem', color: '#afafaf', flexShrink: 0 }}>
+                <span style={{ fontSize: '12px', color: '#5e616e', flexShrink: 0 }}>
                   {item.status === 'uploading' && item.speed ? item.speed : item.status === 'error' ? 'Error' : ''}
                 </span>
                 <button
                   onClick={() => setItems(p => p.filter(i => i.id !== item.id))}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#afafaf', padding: 2, display: 'flex', borderRadius: 6, transition: 'color 150ms' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#cc348d' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#afafaf' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5e616e', padding: 2, display: 'flex', borderRadius: 4, transition: 'color 150ms' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
                 >
-                  <X size={14} />
+                  <X size={13} />
                 </button>
               </div>
               {item.status === 'uploading' && (
                 <div style={{ marginTop: 8 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: '0.7rem', color: '#afafaf', fontWeight: 600 }}>{item.progress}%</span>
-                  </div>
-                  <div style={{ height: 4, background: '#e5e5e5', borderRadius: 999 }}>
-                    <div style={{ height: '100%', width: `${item.progress}%`, background: '#58cc02', borderRadius: 999, transition: 'width 300ms ease' }} />
+                  <div style={{ height: 2, background: 'rgba(255,255,255,0.08)', borderRadius: 999 }}>
+                    <div style={{ height: '100%', width: `${item.progress}%`, background: '#ffffff', borderRadius: 999, transition: 'width 300ms ease' }} />
                   </div>
                 </div>
               )}
               {item.status === 'error' && (
-                <p style={{ fontSize: '0.75rem', color: '#cc348d', margin: '6px 0 0', fontWeight: 600 }}>{item.error}</p>
+                <p style={{ fontSize: '12px', color: '#acafb9', margin: '6px 0 0' }}>{item.error}</p>
               )}
             </div>
           ))}

@@ -4,29 +4,90 @@
 
 @layer base {
   :root {
-    /* Design System Colors */
-    --color-duo-green:       #58cc02;
-    --color-duo-green-dark:  #3f8f01;
-    --color-duo-green-light: #d7ffb8;
-    --color-sky-blue:        #1cb0f6;
-    --color-sunshine-yellow: #ffc700;
-    --color-grape-soda:      #a570ff;
-    --color-bubblegum-pink:  #cc348d;
-    --color-snow-white:      #ffffff;
-    --color-cloud-gray:      #e5e5e5;
-    --color-silver:          #afafaf;
-    --color-graphite:        #777777;
-    --color-charcoal:        #4b4b4b;
-    --color-almost-black:    #3c3c3c;
+    /* ── Slash Design System — Midnight Ledger, Obsidian Surfaces ── */
+
+    /* Colors */
+    --color-midnight-ink: #000000;
+    --color-obsidian-surface: #030304;
+    --color-charcoal-canvas: #08080a;
+    --color-pewter-accent: #121317;
+    --color-slate-gray: #1c1d22;
+    --color-ash-text: #5e616e;
+    --color-stone-text: #777a88;
+    --color-silver-text: #acafb9;
+    --color-porcelain-text: #cdcdcd;
+    --color-white-frost: #e2e3e9;
+    --color-pure-white: #ffffff;
+    --color-golden-gradient: #cc9166;
+    --gradient-golden-gradient: linear-gradient(103deg, rgb(174, 147, 87), rgb(255, 240, 204) 40%, rgb(174, 147, 87) 70%, rgba(189, 157, 79, 0));
+
+    /* Typography — Font Families */
+    --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-ivy-presto: 'Playfair Display', ui-serif, Georgia, serif;
+
+    /* Typography — Scale */
+    --text-caption: 12px;
+    --leading-caption: 1.5;
+    --tracking-caption: -0.007px;
+    --text-body-sm: 14px;
+    --leading-body-sm: 1.43;
+    --tracking-body-sm: -0.013px;
+    --text-body: 16px;
+    --leading-body: 1.38;
+    --tracking-body: -0.02px;
+    --text-subheading: 20px;
+    --leading-subheading: 1.33;
+    --tracking-subheading: -0.022px;
+    --text-heading: 32px;
+    --leading-heading: 1.25;
+    --tracking-heading: -0.025px;
+    --text-heading-lg: 48px;
+    --leading-heading-lg: 1.13;
+    --tracking-heading-lg: -0.04px;
+    --text-display: 88px;
+    --leading-display: 1;
+    --tracking-display: 0.01px;
+
+    /* Spacing */
+    --spacing-4: 4px;
+    --spacing-6: 6px;
+    --spacing-8: 8px;
+    --spacing-9: 9px;
+    --spacing-10: 10px;
+    --spacing-12: 12px;
+    --spacing-14: 14px;
+    --spacing-16: 16px;
+    --spacing-20: 20px;
+    --spacing-22: 22px;
+    --spacing-24: 24px;
+    --spacing-28: 28px;
+    --spacing-32: 32px;
+    --spacing-40: 40px;
+    --spacing-105: 105px;
+    --spacing-224: 224px;
+
+    /* Layout */
+    --page-max-width: 1216px;
+    --section-gap: 160px;
+    --card-padding: 32px;
+    --element-gap: 6px;
+
+    /* Border Radius */
+    --radius-sm: 2px;
+    --radius-md: 10px;
+    --radius-none: 0px;
+    --radius-pill: 9999px;
+
+    /* Surfaces */
+    --surface-midnight-ink: #000000;
+    --surface-obsidian-surface: #030304;
+    --surface-charcoal-canvas: #08080a;
+    --surface-pewter-accent: #121317;
+    --surface-slate-gray: #1c1d22;
 
     /* Semantic */
-    --background: var(--color-snow-white);
-    --foreground: var(--color-almost-black);
-    --accent: var(--color-duo-green);
-    --accent-hover: #4ab001;
-    --danger: var(--color-bubblegum-pink);
-    --warning: var(--color-sunshine-yellow);
-    --info: var(--color-sky-blue);
+    --background: var(--color-midnight-ink);
+    --foreground: var(--color-pure-white);
   }
 }
 
@@ -34,41 +95,38 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), 'Nunito Sans', system-ui, -apple-system, sans-serif;
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.6;
-  letter-spacing: 0.01em;
+  background: var(--color-midnight-ink);
+  color: var(--color-white-frost);
+  font-family: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.013px;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading), 'Fredoka One', sans-serif;
-  letter-spacing: -0.02em;
+/* Display font for headings */
+.font-display,
+h1.font-display, h2.font-display, h3.font-display {
+  font-family: var(--font-display), 'Playfair Display', ui-serif, Georgia, serif;
+  letter-spacing: 0.01em;
 }
 
 /* ─── Scrollbar ─── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-cloud-gray); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-silver); }
+::-webkit-scrollbar-thumb { background: #1c1d22; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #5e616e; }
 
 /* ─── Selection ─── */
-::selection { background: var(--color-duo-green-light); color: var(--color-almost-black); }
+::selection { background: rgba(255,255,255,0.15); color: #ffffff; }
 
 /* ─── Focus ─── */
 :focus-visible {
-  outline: 2px solid var(--color-duo-green);
+  outline: 1px solid rgba(255,255,255,0.4);
   outline-offset: 2px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
-
-/* ─── Typography ─── */
-h1 { font-size: 2.5rem; font-weight: 400; line-height: 1.2; }
-h2 { font-size: 1.75rem; font-weight: 400; line-height: 1.3; }
-h3 { font-size: 1.25rem; font-weight: 400; line-height: 1.4; }
 
 /* ─── Animations ─── */
 @layer utilities {
@@ -97,113 +155,85 @@ h3 { font-size: 1.25rem; font-weight: 400; line-height: 1.4; }
   to   { opacity: 1; transform: scale(1); }
 }
 @keyframes skeleton {
-  0%, 100% { opacity: 0.4; }
-  50%       { opacity: 0.8; }
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 0.6; }
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* ─── Components ─── */
-.btn {
+/* ─── Component Classes ─── */
+.btn-primary {
+  @apply bg-white text-[#08080a] rounded-full font-semibold transition-colors cursor-pointer;
+  border: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  border: none;
+  padding: 10px 32px;
+  font-size: 14px;
   white-space: nowrap;
   user-select: none;
-  letter-spacing: 0.03em;
 }
-.btn:active { transform: translateY(2px); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-.btn-primary {
-  background: var(--color-duo-green);
-  color: #ffffff;
-  box-shadow: 0 4px 0 var(--color-duo-green-dark);
-}
-.btn-primary:hover:not(:disabled) {
-  background: #4ab001;
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--color-duo-green-dark);
-}
-.btn-primary:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: none;
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--color-sky-blue);
-  border: 2px solid var(--color-cloud-gray);
-}
-.btn-secondary:hover:not(:disabled) {
-  background: #f0f9ff;
-  border-color: var(--color-sky-blue);
-}
-
-.btn-danger {
-  background: #fff0f5;
-  color: var(--color-bubblegum-pink);
-  border: 2px solid var(--color-bubblegum-pink);
-}
-.btn-danger:hover:not(:disabled) {
-  background: var(--color-bubblegum-pink);
-  color: #ffffff;
-}
+.btn-primary:hover:not(:disabled) { background: #e2e3e9; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-ghost {
-  background: transparent;
-  color: var(--color-graphite);
-  border: 2px solid transparent;
+  @apply bg-transparent text-white border border-white rounded-full font-medium transition-colors cursor-pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 16px;
+  font-size: 14px;
+  white-space: nowrap;
+  user-select: none;
 }
 .btn-ghost:hover:not(:disabled) {
-  background: #f7f7f7;
-  color: var(--color-almost-black);
+  border-color: #cc9166;
+  color: #cc9166;
 }
+.btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Legacy aliases used in existing JSX */
+.btn { @apply btn-primary; }
+.btn-secondary { @apply btn-ghost; }
+.btn-danger {
+  @apply bg-transparent text-[#777a88] border border-white/10 rounded-full font-medium transition-colors cursor-pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 20px;
+  font-size: 14px;
+}
+.btn-danger:hover:not(:disabled) { border-color: rgba(255,255,255,0.3); color: #ffffff; }
 
 .input {
+  @apply bg-transparent border border-white/20 rounded-full text-white placeholder:text-[#5e616e] focus:border-white focus:outline-none transition-colors;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-family: var(--font-inter), sans-serif;
   width: 100%;
-  padding: 12px 16px;
-  background: #ffffff;
-  border: 2px solid var(--color-cloud-gray);
-  border-radius: 12px;
-  color: var(--color-almost-black);
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.input::placeholder { color: var(--color-silver); }
-.input:focus {
-  outline: none;
-  border-color: var(--color-duo-green);
-  box-shadow: 0 0 0 3px var(--color-duo-green-light);
 }
 
 .card {
-  background: #ffffff;
-  border: 2px solid var(--color-cloud-gray);
-  border-radius: 16px;
+  background: #121317;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 .label {
   display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.053em;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.007px;
   text-transform: uppercase;
-  color: var(--color-silver);
-  margin-bottom: 8px;
+  color: #5e616e;
+  margin-bottom: 6px;
 }
 
-/* ─── Dashboard-specific helpers ─── */
+/* ─── Dashboard helpers ─── */
 .folder-card:hover .folder-del { opacity: 1 !important; }
 
 @media (hover: none) {

@@ -42,18 +42,18 @@ function FileIcon({ mimeType, size = 24 }: { mimeType: string; size?: number }) 
   if (mimeType.startsWith('audio/')) return <FileAudio {...props} className="text-emerald-400" />
   if (mimeType === 'application/pdf') return <FileText {...props} className="text-rose-400" />
   if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('tar')) return <FileArchive {...props} className="text-amber-400" />
-  return <FileIconGeneric {...props} className="text-[#777777]" />
+  return <FileIconGeneric {...props} className="text-[#acafb9]" />
 }
 
 function SkeletonRow() {
   return (
-    <div className="flex items-center w-full p-4 border-b border-[#e5e5e5]">
-      <div className="w-6 h-6 mr-4 rounded bg-[#e5e5e5] animate-pulse" />
+    <div className="flex items-center w-full p-4 border-b border-white/5">
+      <div className="w-6 h-6 mr-4 rounded bg-[#121317] animate-pulse" />
       <div className="flex-1 space-y-2">
-        <div className="h-4 bg-[#e5e5e5] rounded w-1/3 animate-pulse" />
+        <div className="h-4 bg-[#121317] rounded w-1/3 animate-pulse" />
       </div>
-      <div className="hidden md:block w-24 h-4 bg-[#e5e5e5] rounded mx-4 animate-pulse" />
-      <div className="hidden md:block w-24 h-4 bg-[#e5e5e5] rounded animate-pulse" />
+      <div className="hidden md:block w-24 h-4 bg-[#121317] rounded mx-4 animate-pulse" />
+      <div className="hidden md:block w-24 h-4 bg-[#121317] rounded animate-pulse" />
     </div>
   )
 }
@@ -116,53 +116,53 @@ function ShareModal({ file, onClose }: { file: FileItem; onClose: () => void }) 
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-white border border-[#e5e5e5]">
-        <div className="w-10 h-10 rounded-xl bg-[#e5e5e5] flex items-center justify-center flex-shrink-0">
+      <div className="flex items-center gap-3 mb-5 p-3 rounded-[10px] bg-[#121317] border border-white/5">
+        <div className="w-10 h-10 rounded-[10px] bg-[#1c1d22] flex items-center justify-center flex-shrink-0">
           <FileIcon mimeType={file.mimeType} size={20} />
         </div>
         <div className="min-w-0">
-          <p className="font-medium text-[#3c3c3c] truncate text-sm">{file.name}</p>
-          <p className="text-xs text-[#afafaf]">{fmt(file.size)}</p>
+          <p className="font-medium text-white truncate text-sm">{file.name}</p>
+          <p className="text-xs text-[#acafb9]">{fmt(file.size)}</p>
         </div>
       </div>
 
       {loading ? (
         <div className="text-center py-8">
-          <div className="w-8 h-8 border-2 border-[#e5e5e5] border-t-[#58cc02] rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm text-[#777777]">Membuat share link...</p>
+          <div className="w-8 h-8 border-2 border-white/10 border-t-white rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-[#acafb9]">Membuat share link...</p>
         </div>
       ) : shareUrl ? (
         <div className="space-y-3">
           <div>
             <label className="label">Link Publik</label>
             <div className="flex items-center gap-2 mt-1">
-              <div className="flex-1 bg-white border border-[#e5e5e5] rounded-xl px-3 py-2.5 flex items-center gap-2 min-w-0">
-                <LinkIcon size={14} className="text-[#afafaf] flex-shrink-0" />
-                <span className="text-xs text-[#777777] truncate font-mono">{shareUrl}</span>
+              <div className="flex-1 bg-[#08080a] border border-white/5 rounded-[10px] px-3 py-2.5 flex items-center gap-2 min-w-0">
+                <LinkIcon size={14} className="text-[#acafb9] flex-shrink-0" />
+                <span className="text-xs text-[#acafb9] truncate font-mono">{shareUrl}</span>
               </div>
               <button
                 onClick={copyLink}
-                className={`p-2.5 rounded-xl border transition-all flex-shrink-0 ${copied ? 'bg-[#d7ffb8] border-[#58cc02] text-[#58cc02]' : 'bg-[#e5e5e5] border-[#e5e5e5] text-[#777777] hover:text-[#58cc02]'}`}
+                className={`p-2.5 rounded-[10px] border transition-all flex-shrink-0 ${copied ? 'bg-[#1c1d22] border-white/10 text-[#acafb9]' : 'bg-[#121317] border-white/5 text-[#5e616e] hover:text-white'}`}
               >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
               </button>
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#f7fff0] border border-[#58cc02]">
-            <p className="text-xs text-[#58cc02] leading-relaxed">
+          <div className="p-3 rounded-[10px] bg-[#1c1d22] border border-white/5">
+            <p className="text-xs text-[#acafb9] leading-relaxed">
               ✓ Link ini bisa diakses siapa saja tanpa login.<br />
               ✓ File bisa langsung didownload dari halaman publik.
             </p>
             {downloadCount > 0 && (
-              <p className="text-xs text-[#afafaf] mt-1">Sudah didownload {downloadCount}×</p>
+              <p className="text-xs text-[#acafb9] mt-1">Sudah didownload {downloadCount}×</p>
             )}
           </div>
 
           <div className="flex gap-2 pt-1">
             <button
               onClick={() => window.open(shareUrl, '_blank')}
-              className="flex-1 btn btn-ghost border-2 border-[#e5e5e5] shadow-[0_4px_0_#e5e5e5] hover:border-[#58cc02] hover:shadow-[0_4px_0_#58cc02] hover:bg-[#f7fff0] text-sm py-2"
+              className="flex-1 btn btn-ghost border border-white/20 hover:border-white/20 hover:bg-[#121317] text-sm py-2"
             >
               Buka Link →
             </button>
@@ -177,7 +177,7 @@ function ShareModal({ file, onClose }: { file: FileItem; onClose: () => void }) 
         </div>
       ) : (
         <div className="text-center py-6">
-          <p className="text-[#777777] text-sm mb-4">Share link belum dibuat atau sudah dicabut</p>
+          <p className="text-[#acafb9] text-sm mb-4">Share link belum dibuat atau sudah dicabut</p>
           <button
             onClick={() => {
               setLoading(true)
@@ -219,17 +219,17 @@ function EmptyState({ nav, search, onUpload }: { nav: NavItem; search: string; o
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center justify-center h-full max-w-md mx-auto text-center py-20"
     >
-      <div className="w-24 h-24 mb-6 rounded-3xl bg-[#f7fff0] border-2 border-[#58cc02] flex items-center justify-center shadow-xl">
-        <FolderIcon size={40} className="text-[#afafaf]" />
+      <div className="w-24 h-24 mb-6 rounded-[10px] bg-[#121317] border border-white/5 flex items-center justify-center">
+        <FolderIcon size={40} className="text-[#1c1d22]" />
       </div>
-      <h3 className="text-xl font-heading font-bold text-[#3c3c3c] mb-2">
+      <h3 className="text-xl font-display font-semibold text-white mb-2">
         {search ? 'Pencarian tidak ditemukan' : title}
       </h3>
-      <p className="text-[#777777] mb-8">
+      <p className="text-[#5e616e] mb-8">
         {search ? `Tidak ada file yang cocok dengan "${search}"` : desc}
       </p>
       {!search && nav === 'My Drive' && (
-        <button onClick={onUpload} className="btn btn-primary px-6 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
+        <button onClick={onUpload} className="btn btn-primary px-6 py-3 rounded-[10px] text-sm font-semibold flex items-center gap-2">
           <Plus size={18} /> Upload file pertama kamu
         </button>
       )}
@@ -671,29 +671,29 @@ function DashboardPage() {
   const itemAnimation = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }
 
   if (status === 'loading') return (
-    <div className="min-h-screen bg-[#f7f7f7] flex flex-col items-center justify-center gap-5">
+    <div className="min-h-screen bg-[#000000] flex flex-col items-center justify-center gap-5">
       {/* Circle bar loading */}
       <div className="relative w-20 h-20">
         <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="34" fill="none" stroke="#e5e5e5" strokeWidth="5" />
+          <circle cx="40" cy="40" r="34" fill="none" stroke="#1c1d22" strokeWidth="5" />
           <circle
-            cx="40" cy="40" r="34" fill="none" stroke="#58cc02" strokeWidth="5"
+            cx="40" cy="40" r="34" fill="none" stroke="#ffffff" strokeWidth="5"
             strokeLinecap="round"
             strokeDasharray="60 154"
             style={{ animation: 'spin 1.2s linear infinite', transformOrigin: 'center' }}
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-8 h-8 rounded-xl bg-[#58cc02] flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-8 h-8 rounded-[10px] bg-white text-[#08080a] flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
             </svg>
           </div>
         </div>
       </div>
       <div className="text-center">
-        <p className="text-[#777777] text-sm font-medium">sabar yah lagi loading....</p>
-        <p className="text-[#afafaf] text-xs mt-1">Memuat TeleDrive</p>
+        <p className="text-[#acafb9] text-sm font-medium">sabar yah lagi loading....</p>
+        <p className="text-[#5e616e] text-xs mt-1">Memuat TeleDrive</p>
       </div>
       <style>{`@keyframes spin { to { stroke-dashoffset: -214; } }`}</style>
     </div>
@@ -701,7 +701,7 @@ function DashboardPage() {
 
   return (
     <UploadProvider onUploadComplete={() => { load(); fetchStorageInfo() }}>
-    <div className="flex h-screen bg-[#f7f7f7] overflow-hidden text-[#3c3c3c]">
+    <div className="flex h-screen bg-[#000000] overflow-hidden text-[#e2e3e9]">
       <Sidebar
         workerStatus={workerStatus}
         onRefreshWorker={checkWorker}
@@ -714,21 +714,21 @@ function DashboardPage() {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* Header */}
-        <header className="h-16 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 bg-white border-b-2 border-[#e5e5e5] border-b border-[#e5e5e5]/60 sticky top-0 z-40">
+        <header className="h-16 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 bg-[#030304] border-b border-white/5 sticky top-0 z-40">
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsSidebarOpen(true)} className="md:hidden p-2 text-[#777777] hover:text-[#58cc02]">
+            <button onClick={() => setIsSidebarOpen(true)} className="md:hidden p-2 text-[#5e616e] hover:text-white">
               <Menu size={20} />
             </button>
             <nav className="flex items-center gap-2 overflow-x-auto no-scrollbar mask-fade-right flex-1 min-w-0 pr-4">
               {breadcrumb.map((b, i) => (
                 <div key={i} className="flex items-center shrink-0">
-                  {i > 0 && <ChevronRight size={16} className="text-[#afafaf] mx-1" />}
+                  {i > 0 && <ChevronRight size={16} className="text-[#acafb9] mx-1" />}
                   <button
                     onClick={() => navTo(i)}
                     className={`px-2 py-1 rounded-md text-sm transition-colors max-w-[150px] truncate ${
                       i === breadcrumb.length - 1
-                        ? 'font-semibold text-[#3c3c3c] bg-[#e5e5e5]/50'
-                        : 'text-[#777777] hover:text-[#58cc02] hover:bg-[#e5e5e5]/30'
+                        ? 'font-semibold text-white bg-[#1c1d22]'
+                        : 'text-[#5e616e] hover:text-white hover:bg-[#121317]'
                     }`}
                   >
                     {b.name}
@@ -740,19 +740,19 @@ function DashboardPage() {
 
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             <div className="hidden md:flex relative w-64 group">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#afafaf] group-focus-within:text-[#58cc02] transition-colors" />
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5e616e] group-focus-within:text-white transition-colors" />
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Cari file..."
-                className="w-full bg-white/50 border border-[#e5e5e5] rounded-xl py-2 pl-9 pr-4 text-sm text-[#3c3c3c] placeholder-[#afafaf] focus:outline-none focus:border-[#58cc02] focus:ring-1 focus:ring-[#58cc02] transition-all"
+                className="w-full bg-transparent border border-white/20 rounded-full py-2 pl-9 pr-4 text-sm text-white placeholder-[#5e616e] focus:outline-none focus:border-white transition-all"
               />
             </div>
 
-            <div className="relative flex bg-white/80 border border-[#e5e5e5] rounded-lg p-0.5 sm:mr-2">
+            <div className="relative flex bg-[#121317] border border-white/5 rounded-[10px] p-0.5 sm:mr-2">
               <button 
                 onClick={() => setShowSortMenu(p => !p)}
-                className="bg-transparent text-[#777777] px-2 py-1 focus:outline-none flex items-center gap-1 hover:text-[#58cc02] transition-colors"
+                className="bg-transparent text-[#777a88] px-2 py-1 focus:outline-none flex items-center gap-1 hover:text-white transition-colors"
                 title="Urutkan File"
               >
                 <ArrowUpDown size={16} />
@@ -768,27 +768,27 @@ function DashboardPage() {
                       initial={{ opacity: 0, y: -10 }} 
                       animate={{ opacity: 1, y: 0 }} 
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full right-0 mt-2 w-36 bg-[#e5e5e5] border border-[#e5e5e5] rounded-lg shadow-xl z-50 overflow-hidden"
+                      className="absolute top-full right-0 mt-2 w-36 bg-[#121317] border border-white/5 rounded-[10px] shadow-xl z-50 overflow-hidden"
                     >
                       {['date', 'name', 'size'].map(opt => (
                         <button
                           key={opt}
                           onClick={() => { setSortBy(opt as any); setShowSortMenu(false) }}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-[#e5e5e5] transition-colors ${sortBy === opt ? 'text-[#58cc02] bg-[#f7f7f7]' : 'text-[#777777]'}`}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1c1d22] transition-colors ${sortBy === opt ? 'text-white bg-[#1c1d22]' : 'text-[#acafb9]'}`}
                         >
                           {opt === 'date' ? 'Tanggal' : opt === 'name' ? 'Nama' : 'Ukuran'}
                         </button>
                       ))}
-                      <div className="h-px bg-[#e5e5e5] my-1" />
+                      <div className="h-px bg-white/5 my-1" />
                       <button
                         onClick={() => { setSortOrder('asc'); setShowSortMenu(false) }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#e5e5e5] transition-colors ${sortOrder === 'asc' ? 'text-[#58cc02] bg-[#f7f7f7]' : 'text-[#777777]'}`}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1c1d22] transition-colors ${sortOrder === 'asc' ? 'text-white bg-[#1c1d22]' : 'text-[#acafb9]'}`}
                       >
                         Menaik (↑)
                       </button>
                       <button
                         onClick={() => { setSortOrder('desc'); setShowSortMenu(false) }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#e5e5e5] transition-colors ${sortOrder === 'desc' ? 'text-[#58cc02] bg-[#f7f7f7]' : 'text-[#777777]'}`}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1c1d22] transition-colors ${sortOrder === 'desc' ? 'text-white bg-[#1c1d22]' : 'text-[#acafb9]'}`}
                       >
                         Menurun (↓)
                       </button>
@@ -798,12 +798,12 @@ function DashboardPage() {
               </AnimatePresence>
             </div>
 
-            <div className="hidden sm:flex bg-white/80 border border-[#e5e5e5] rounded-lg p-0.5">
+            <div className="hidden sm:flex bg-[#121317] border border-white/5 rounded-[10px] p-0.5">
               {(['list', 'grid'] as const).map(v => (
                 <button
                   key={v}
                   onClick={() => setView(v)}
-                  className={`p-1.5 rounded-md transition-colors ${view === v ? 'bg-[#e5e5e5] text-[#3c3c3c] shadow-sm' : 'text-[#afafaf] hover:text-[#777777]'}`}
+                  className={`p-1.5 rounded-[10px] transition-colors ${view === v ? 'bg-[#1c1d22] text-white' : 'text-[#777a88] hover:text-white'}`}
                   title={v === 'list' ? 'List View' : 'Grid View'}
                 >
                   {v === 'list' ? <List size={16} /> : <Grid3X3 size={16} />}
@@ -814,7 +814,7 @@ function DashboardPage() {
             {selectMode && filteredFiles.length > 0 && (
               <button
                 onClick={toggleSelectAll}
-                className="px-2 py-1.5 rounded-lg text-xs font-semibold bg-[#e5e5e5] text-[#777777] hover:text-[#58cc02] hover:bg-[#e5e5e5] transition-colors ml-1 flex items-center gap-1"
+                className="px-2 py-1.5 rounded-[10px] text-xs font-semibold bg-[#121317] border border-white/5 text-[#777a88] hover:text-white transition-colors ml-1 flex items-center gap-1"
                 title={selectedIds.size === filteredFiles.length ? 'Batal Pilih Semua' : 'Pilih Semua'}
               >
                 <CheckSquare size={16} />
@@ -823,7 +823,7 @@ function DashboardPage() {
             )}
             <button
               onClick={() => { setSelectMode(m => !m); setSelectedIds(new Set()) }}
-              className={`p-2 rounded-lg transition-colors ml-1 ${selectMode ? 'bg-[#ffdfe0] text-[#ff4b4b] hover:bg-[#ffc6c8]' : 'bg-white/80 border border-[#e5e5e5] text-[#777777] hover:text-[#58cc02]'}`}
+              className={`p-2 rounded-full transition-colors ml-1 ${selectMode ? 'bg-[#1c1d22] text-white border border-white/20' : 'bg-[#121317] border border-white/5 text-[#777a88] hover:text-white'}`}
               title={selectMode ? 'Batal Pilih' : 'Pilih File'}
             >
               {selectMode ? <X size={16} /> : <ListChecks size={16} />}
@@ -831,21 +831,21 @@ function DashboardPage() {
 
             {/* Upload indicator sudah ada di FAB pojok kanan bawah */}
 
-            <button onClick={() => setShowAccount(true)} className="md:hidden p-2 rounded-lg bg-white border border-[#e5e5e5] text-[#777777] hover:text-[#58cc02]">
+            <button onClick={() => setShowAccount(true)} className="md:hidden p-2 rounded-[10px] bg-[#121317] border border-white/5 text-[#777a88] hover:text-white">
               <UserIcon size={16} />
             </button>
           </div>
         </header>
 
         {/* Mobile Search */}
-        <div className="md:hidden px-4 py-3 bg-white border-b border-[#e5e5e5]/60 sticky top-16 z-30">
+        <div className="md:hidden px-4 py-3 bg-[#030304] border-b border-white/5 sticky top-16 z-30">
           <div className="relative group">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#afafaf] group-focus-within:text-[#58cc02]" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5e616e] group-focus-within:text-white" />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Cari file..."
-              className="w-full bg-white/50 border border-[#e5e5e5] rounded-xl py-2.5 pl-9 pr-4 text-sm text-[#3c3c3c] placeholder-[#afafaf] focus:outline-none focus:border-[#58cc02]"
+              className="w-full bg-transparent border border-white/20 rounded-full py-2.5 pl-9 pr-4 text-sm text-white placeholder-[#5e616e] focus:outline-none focus:border-white"
             />
           </div>
         </div>
@@ -856,25 +856,26 @@ function DashboardPage() {
             <div className="flex flex-col items-center justify-center py-20 gap-5">
               <div className="relative w-16 h-16">
                 <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 64 64">
-                  <circle cx="32" cy="32" r="26" fill="none" stroke="#e5e5e5" strokeWidth="4" />
+                  <circle cx="32" cy="32" r="26" fill="none" strokeWidth="4" className="stroke-white/10" />
                   <circle
-                    cx="32" cy="32" r="26" fill="none" stroke="#58cc02" strokeWidth="4"
+                    cx="32" cy="32" r="26" fill="none" strokeWidth="4"
                     strokeLinecap="round"
                     strokeDasharray="48 115"
                     style={{ animation: 'dashSpin 1.2s linear infinite', transformOrigin: 'center' }}
+                    className="stroke-white"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-7 h-7 rounded-lg bg-[#58cc02] flex items-center justify-center">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <div className="w-7 h-7 rounded-[10px] bg-white text-[#08080a] flex items-center justify-center">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
                     </svg>
                   </div>
                 </div>
               </div>
               <div className="text-center">
-                <p className="text-[#777777] text-sm font-medium">sabar yah lagi loading....</p>
-                <p className="text-[#afafaf] text-xs mt-1">Memuat file kamu</p>
+                <p className="text-[#acafb9] text-sm font-medium">sabar yah lagi loading....</p>
+                <p className="text-[#5e616e] text-xs mt-1">Memuat file kamu</p>
               </div>
               <style>{`@keyframes dashSpin { to { stroke-dashoffset: -163; } }`}</style>
             </div>
@@ -887,7 +888,7 @@ function DashboardPage() {
           {/* Folders */}
           {!loading && filteredFolders.length > 0 && (
             <section className="mb-10">
-              <h4 className="text-xs font-semibold text-[#afafaf] uppercase tracking-wider mb-4 px-1">Folders</h4>
+              <h4 className="text-xs font-medium text-[#5e616e] uppercase tracking-wider mb-4 px-1">Folders</h4>
               <motion.div variants={containerAnimation} initial="hidden" animate="show" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {filteredFolders.map(f => (
                   <motion.div key={f._id} variants={itemAnimation} className="group relative">
@@ -916,23 +917,23 @@ function DashboardPage() {
                           } finally { setActionLoading(false) }
                         }
                       }}
-                      className={`w-full text-left bg-white/40 border ${dragOverFolderId === f._id ? 'border-[#58cc02] bg-[#f7fff0]' : 'border-[#e5e5e5]'} rounded-2xl p-4 hover:border-[#58cc02] shadow-[0_4px_0_#e5e5e5] hover:shadow-[0_4px_0_#58cc02] group transition-all duration-200`}
+                      className={`w-full text-left border rounded-[10px] p-4 transition-all duration-200 ${dragOverFolderId === f._id ? 'border-white/30 bg-[#1c1d22]' : 'bg-[#121317] border-white/5 hover:bg-[#1c1d22] hover:border-white/10'}`}
                     >
-                      <FolderIcon size={32} className="text-[#58cc02] mb-3 fill-[#58cc02]/20" strokeWidth={1.5} />
-                      <div className="font-medium text-[#3c3c3c] truncate mb-1">{f.name}</div>
-                      <div className="text-[11px] text-[#afafaf]">{fmtDate(f.createdAt)}</div>
+                      <FolderIcon size={32} className="text-[#acafb9] mb-3" strokeWidth={1.5} />
+                      <div className="font-medium text-white truncate mb-1">{f.name}</div>
+                      <div className="text-[11px] text-[#acafb9]">{fmtDate(f.createdAt)}</div>
                     </button>
                     <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 sm:opacity-0 focus-within:opacity-100 transition-opacity">
                       <button
                         onClick={(e) => { e.stopPropagation(); setRenameFolderTarget(f); setRenameFolderVal(f.name) }}
-                        className="p-1.5 rounded-lg bg-[#e5e5e5]/80 backdrop-blur text-[#777777] hover:text-[#58cc02] hover:bg-[#e5e5e5]"
+                        className="p-1.5 rounded-[10px] bg-[#1c1d22] text-[#acafb9] hover:text-white hover:bg-[#121317]"
                         title="Ganti nama folder"
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteFolder(f) }}
-                        className="p-1.5 rounded-lg bg-white border-2 border-[#e5e5e5] shadow-[0_2px_0_#e5e5e5] hover:border-[#ff4b4b] text-[#ff4b4b]"
+                        className="p-1.5 rounded-[10px] bg-[#1c1d22] border border-white/10 text-[#777a88] hover:text-white"
                         title="Hapus folder"
                       >
                         <Trash2 size={14} />
@@ -947,7 +948,7 @@ function DashboardPage() {
           {/* Files */}
           {!loading && (filteredFiles.length > 0) && (
             <section>
-              {filteredFiles.length > 0 && <h4 className="text-xs font-semibold text-[#afafaf] uppercase tracking-wider mb-4 px-1">Files</h4>}
+              {filteredFiles.length > 0 && <h4 className="text-xs font-medium text-[#5e616e] uppercase tracking-wider mb-4 px-1">Files</h4>}
 
               {/* Grid View */}
               {view === 'grid' && !loading && (
@@ -964,43 +965,43 @@ function DashboardPage() {
                         }}
                         onClick={() => { if (selectMode) { toggleSelect(f._id) } else if (previewable) { setViewerFile(f) } }}
                         onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, file: f, folder: null }) }}
-                        className={`group relative bg-white/40 border rounded-2xl p-4 cursor-pointer transition-all duration-200 ${
-                          isSelected ? 'border-[#58cc02] shadow-[0_4px_0_#58cc02] bg-[#f7fff0]' : 'border-[#e5e5e5] hover:border-[#e5e5e5] hover:bg-[#e5e5e5]/40'
+                        className={`group relative border rounded-[10px] p-4 cursor-pointer transition-all duration-200 ${
+                          isSelected ? 'bg-[#1c1d22] border-white/30' : 'bg-[#121317] border-white/5 hover:bg-[#1c1d22] hover:border-white/10'
                         }`}
                       >
                         {selectMode && (
                           <div className="absolute top-3 right-3" onClick={(e) => { e.stopPropagation(); toggleSelect(f._id) }}>
-                            {isSelected ? <CheckSquare size={18} className="text-[#58cc02]" /> : <Square size={18} className="text-[#afafaf]" />}
+                            {isSelected ? <CheckSquare size={18} className="text-white" /> : <Square size={18} className="text-[#1c1d22]" />}
                           </div>
                         )}
                         <div className="mb-4 mt-2 flex justify-center items-center h-16 relative">
                           <FileIcon mimeType={f.mimeType} size={40} />
                           {f.isStarred && <Star size={14} className="absolute bottom-0 right-1/4 text-amber-400 fill-amber-400" />}
                         </div>
-                        <div className="font-medium text-sm text-[#3c3c3c] truncate mb-1" title={f.name}>{f.name}</div>
-                        <div className="text-[11px] text-[#afafaf] truncate flex items-center justify-between">
+                        <div className="font-medium text-sm text-white truncate mb-1" title={f.name}>{f.name}</div>
+                        <div className="text-[11px] text-[#acafb9] truncate flex items-center justify-between">
                           <span>{fmt(f.size)}</span>
-                          {f.isChunked && <span className="px-1.5 rounded bg-[#d7ffb8] text-[#58cc02] text-[9px] uppercase font-bold tracking-wider">Chunked</span>}
+                          {f.isChunked && <span className="px-1.5 rounded-full bg-[#1c1d22] border border-white/10 text-[#acafb9] text-[9px] uppercase font-bold tracking-wider">Chunked</span>}
                         </div>
 
                         {!selectMode && (
-                          <div className="absolute top-2 right-2 grid grid-cols-2 gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur p-1.5 rounded-xl border border-[#e5e5e5]/50 shadow-xl z-10">
-                            <button onClick={(e) => { e.stopPropagation(); toggleStar(f) }} className="p-1.5 rounded-md text-amber-400 hover:bg-[#e5e5e5] transition-colors flex items-center justify-center" title={f.isStarred ? 'Hapus bintang' : 'Bintangi'}>
+                          <div className="absolute top-2 right-2 grid grid-cols-2 gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-[#1c1d22] p-1.5 rounded-[10px] border border-white/10 shadow-xl z-10">
+                            <button onClick={(e) => { e.stopPropagation(); toggleStar(f) }} className="p-1.5 rounded-[10px] text-amber-400 hover:bg-[#121317] transition-colors flex items-center justify-center" title={f.isStarred ? 'Hapus bintang' : 'Bintangi'}>
                               {f.isStarred ? <StarOff size={14} /> : <Star size={14} />}
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); setShareTarget(f) }} className="p-1.5 rounded-md text-[#58cc02] hover:bg-[#e5e5e5] transition-colors flex items-center justify-center" title="Bagikan">
+                            <button onClick={(e) => { e.stopPropagation(); setShareTarget(f) }} className="p-1.5 rounded-[10px] text-[#acafb9] hover:text-white hover:bg-[#121317] transition-colors flex items-center justify-center" title="Bagikan">
                               <Share2 size={14} />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); handleMoveSingleFile(f) }} className="p-1.5 rounded-md text-indigo-400 hover:bg-[#e5e5e5] transition-colors flex items-center justify-center" title="Pindahkan">
+                            <button onClick={(e) => { e.stopPropagation(); handleMoveSingleFile(f) }} className="p-1.5 rounded-[10px] text-indigo-400 hover:bg-[#121317] transition-colors flex items-center justify-center" title="Pindahkan">
                               <MoveRight size={14} />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); window.open(`/api/download?fileId=${f._id}`, '_blank') }} className="p-1.5 rounded-md text-emerald-400 hover:bg-[#e5e5e5] transition-colors flex items-center justify-center" title="Download">
+                            <button onClick={(e) => { e.stopPropagation(); window.open(`/api/download?fileId=${f._id}`, '_blank') }} className="p-1.5 rounded-[10px] text-emerald-400 hover:bg-[#121317] transition-colors flex items-center justify-center" title="Download">
                               <Download size={14} />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); setRenameTarget(f); setRenameVal(f.name) }} className="p-1.5 rounded-md text-[#777777] hover:bg-[#e5e5e5] transition-colors flex items-center justify-center" title="Ganti nama">
+                            <button onClick={(e) => { e.stopPropagation(); setRenameTarget(f); setRenameVal(f.name) }} className="p-1.5 rounded-[10px] text-[#acafb9] hover:text-white hover:bg-[#121317] transition-colors flex items-center justify-center" title="Ganti nama">
                               <Pencil size={14} />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(f) }} className="p-1.5 rounded-md text-rose-400 hover:bg-[#ffdfe0] transition-colors flex items-center justify-center" title="Hapus">
+                            <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(f) }} className="p-1.5 rounded-[10px] text-[#777a88] hover:text-white hover:bg-[#121317] transition-colors flex items-center justify-center" title="Hapus">
                               <Trash2 size={14} />
                             </button>
                           </div>
@@ -1013,11 +1014,11 @@ function DashboardPage() {
 
               {/* List View */}
               {view === 'list' && (
-                <div className="bg-white/40 border border-[#e5e5e5] rounded-2xl overflow-hidden">
-                  <div className="flex items-center px-4 py-3 bg-white/80 border-b border-[#e5e5e5] text-xs font-semibold text-[#777777] uppercase tracking-wider">
+                <div className="bg-[#121317] border border-white/5 rounded-[10px] overflow-hidden">
+                  <div className="flex items-center px-4 py-3 bg-[#08080a] border-b border-white/5 text-xs font-semibold text-[#5e616e] uppercase tracking-wider">
                     {selectMode && (
                       <div className="w-8 flex-shrink-0 cursor-pointer" onClick={toggleSelectAll}>
-                        {selectedIds.size === filteredFiles.length && filteredFiles.length > 0 ? <CheckSquare size={16} className="text-[#58cc02]" /> : <Square size={16} />}
+                        {selectedIds.size === filteredFiles.length && filteredFiles.length > 0 ? <CheckSquare size={16} className="text-white" /> : <Square size={16} />}
                       </div>
                     )}
                     <div className="flex-1">Nama</div>
@@ -1025,19 +1026,19 @@ function DashboardPage() {
                     <div className="w-32 hidden md:block text-right pr-4">Tanggal</div>
                     <div className="w-36 text-right">Aksi</div>
                   </div>
-                  <div className="divide-y divide-[#e5e5e5]">
+                  <div className="divide-y divide-white/5">
                     {filteredFiles.map(f => {
                       const isSelected = selectedIds.has(f._id)
                       const previewable = canPreview(f.mimeType)
                       return (
                         <div
                           key={f._id}
-                          className={`flex items-center px-4 py-3 hover:bg-[#e5e5e5]/40 transition-colors cursor-pointer ${isSelected ? 'bg-[#f7fff0]' : ''}`}
+                          className={`flex items-center px-4 py-3 hover:bg-[#1c1d22] transition-colors cursor-pointer ${isSelected ? 'bg-[#1c1d22]' : ''}`}
                           onClick={() => { if (selectMode) { toggleSelect(f._id) } else if (previewable) { setViewerFile(f) } }}
                         >
                           {selectMode && (
                             <div className="w-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); toggleSelect(f._id) }}>
-                              {isSelected ? <CheckSquare size={16} className="text-[#58cc02]" /> : <Square size={16} className="text-[#afafaf]" />}
+                              {isSelected ? <CheckSquare size={16} className="text-white" /> : <Square size={16} className="text-[#acafb9]" />}
                             </div>
                           )}
                           <div className="flex-1 flex items-center gap-3 min-w-0">
@@ -1045,35 +1046,35 @@ function DashboardPage() {
                               <FileIcon mimeType={f.mimeType} size={20} />
                               {f.isStarred && <Star size={10} className="absolute -bottom-1 -right-1 text-amber-400 fill-amber-400" />}
                             </div>
-                            <span className="truncate text-sm font-medium text-[#3c3c3c]">{f.name}</span>
-                            {f.isChunked && <span className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-[#d7ffb8] text-[#58cc02] text-[10px] uppercase font-bold tracking-wider">Chunked</span>}
+                            <span className="truncate text-sm font-medium text-white">{f.name}</span>
+                            {f.isChunked && <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-full bg-[#1c1d22] border border-white/10 text-[#acafb9] text-[10px] uppercase font-bold tracking-wider">Chunked</span>}
                           </div>
-                          <div className="w-24 hidden md:block text-right text-xs text-[#777777]">{fmt(f.size)}</div>
-                          <div className="w-32 hidden md:block text-right pr-4 text-xs text-[#777777]">{fmtDate(f.createdAt)}</div>
+                          <div className="w-24 hidden md:block text-right text-xs text-[#acafb9]">{fmt(f.size)}</div>
+                          <div className="w-32 hidden md:block text-right pr-4 text-xs text-[#acafb9]">{fmtDate(f.createdAt)}</div>
                           <div className="w-36 text-right flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
                             {!selectMode && (
                               <>
-                                <button onClick={() => toggleStar(f)} className={`p-1.5 rounded-md transition-colors ${f.isStarred ? 'text-[#ffc800] hover:bg-[#fff6d6]' : 'text-[#777777] hover:text-[#58cc02] hover:bg-[#e5e5e5]'}`} title={f.isStarred ? 'Hapus bintang' : 'Bintangi'}>
+                                <button onClick={() => toggleStar(f)} className={`p-1.5 rounded-[10px] transition-colors ${f.isStarred ? 'text-[#ffc800] hover:bg-[#1c1d22]' : 'text-[#acafb9] hover:text-white hover:bg-[#1c1d22]'}`} title={f.isStarred ? 'Hapus bintang' : 'Bintangi'}>
                                   {f.isStarred ? <StarOff size={16} /> : <Star size={16} />}
                                 </button>
-                                <button onClick={() => setShareTarget(f)} className="p-1.5 rounded-md text-[#58cc02] hover:text-cyan-300 hover:bg-[#d7ffb8] transition-colors" title="Bagikan">
+                                <button onClick={() => setShareTarget(f)} className="p-1.5 rounded-[10px] text-[#acafb9] hover:text-white hover:bg-[#1c1d22] transition-colors" title="Bagikan">
                                   <Share2 size={16} />
                                 </button>
-                                <button onClick={() => handleMoveSingleFile(f)} className="p-1.5 rounded-md text-[#1cb0f6] hover:bg-[#e8f6ff] transition-colors" title="Pindahkan">
+                                <button onClick={() => handleMoveSingleFile(f)} className="p-1.5 rounded-[10px] text-[#1cb0f6] hover:bg-[#1c1d22] transition-colors" title="Pindahkan">
                                   <MoveRight size={16} />
                                 </button>
                                 {previewable && (
-                                  <button onClick={() => setViewerFile(f)} className="p-1.5 rounded-md text-[#777777] hover:text-[#58cc02] hover:bg-[#e5e5e5] transition-colors" title="Preview">
+                                  <button onClick={() => setViewerFile(f)} className="p-1.5 rounded-[10px] text-[#acafb9] hover:text-white hover:bg-[#1c1d22] transition-colors" title="Preview">
                                     <Eye size={16} />
                                   </button>
                                 )}
-                                <button onClick={() => window.open(`/api/download?fileId=${f._id}`, '_blank')} className="p-1.5 rounded-md text-[#777777] hover:text-[#58cc02] hover:bg-[#e5e5e5] transition-colors" title="Download">
+                                <button onClick={() => window.open(`/api/download?fileId=${f._id}`, '_blank')} className="p-1.5 rounded-[10px] text-[#acafb9] hover:text-white hover:bg-[#1c1d22] transition-colors" title="Download">
                                   <Download size={16} />
                                 </button>
-                                <button onClick={() => { setRenameTarget(f); setRenameVal(f.name) }} className="p-1.5 rounded-md text-[#777777] hover:text-[#58cc02] hover:bg-[#e5e5e5] transition-colors" title="Ganti nama">
+                                <button onClick={() => { setRenameTarget(f); setRenameVal(f.name) }} className="p-1.5 rounded-[10px] text-[#acafb9] hover:text-white hover:bg-[#1c1d22] transition-colors" title="Ganti nama">
                                   <Pencil size={16} />
                                 </button>
-                                <button onClick={() => setDeleteTarget(f)} className="p-1.5 rounded-md text-rose-400 hover:bg-rose-500/10 transition-colors" title="Hapus">
+                                <button onClick={() => setDeleteTarget(f)} className="p-1.5 rounded-[10px] text-[#777a88] hover:text-white hover:bg-[#1c1d22] transition-colors" title="Hapus">
                                   <Trash2 size={16} />
                                 </button>
                               </>
@@ -1095,19 +1096,19 @@ function DashboardPage() {
         <AnimatePresence>
           {showAddMenu && (
             <>
-              <div className="fixed inset-0 bg-white/40 backdrop-blur-sm z-40" onClick={() => setShowAddMenu(false)} />
+              <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40" onClick={() => setShowAddMenu(false)} />
               <motion.div
                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.9 }}
                 className="flex flex-col gap-2 z-50 items-end"
               >
-                <button onClick={() => { setShowNewFolder(true); setShowAddMenu(false) }} className="flex items-center gap-3 bg-[#e5e5e5] border border-[#e5e5e5] rounded-full pr-4 pl-3 py-2 text-sm text-[#3c3c3c] shadow-lg active:scale-95 transition-transform whitespace-nowrap">
-                  <div className="w-8 h-8 rounded-full bg-[#e5e5e5] flex items-center justify-center shrink-0"><FolderPlus size={16} className="text-[#58cc02]" /></div>
+                <button onClick={() => { setShowNewFolder(true); setShowAddMenu(false) }} className="flex items-center gap-3 bg-[#121317] border border-white/10 rounded-[10px] pr-4 pl-3 py-2 text-sm text-white active:scale-95 transition-transform whitespace-nowrap">
+                  <div className="w-8 h-8 rounded-full bg-[#1c1d22] flex items-center justify-center shrink-0"><FolderPlus size={16} className="text-[#acafb9]" /></div>
                   Buat Folder Baru
                 </button>
-                <button onClick={() => { setShowUpload(true); setShowAddMenu(false) }} className="flex items-center gap-3 bg-[#e5e5e5] border border-[#e5e5e5] rounded-full pr-4 pl-3 py-2 text-sm text-[#3c3c3c] shadow-lg active:scale-95 transition-transform whitespace-nowrap">
-                  <div className="w-8 h-8 rounded-full bg-[#e5e5e5] flex items-center justify-center shrink-0"><Upload size={16} className="text-pink-400" /></div>
+                <button onClick={() => { setShowUpload(true); setShowAddMenu(false) }} className="flex items-center gap-3 bg-[#121317] border border-white/10 rounded-[10px] pr-4 pl-3 py-2 text-sm text-white active:scale-95 transition-transform whitespace-nowrap">
+                  <div className="w-8 h-8 rounded-full bg-[#1c1d22] flex items-center justify-center shrink-0"><Upload size={16} className="text-[#acafb9]" /></div>
                   Upload File
                 </button>
               </motion.div>
@@ -1153,13 +1154,13 @@ function DashboardPage() {
         <div className="flex items-start gap-4 mb-6 mt-2">
           <div className="p-3 rounded-full bg-rose-500/10 text-rose-500 shrink-0"><Trash2 size={24} /></div>
           <div>
-            <p className="text-[#777777] font-medium mb-1">Hapus "{deleteTarget?.name}"?</p>
-            <p className="text-sm text-[#afafaf]">Tindakan ini tidak bisa dibatalkan. File akan dihapus permanen dari server Telegram.</p>
+            <p className="text-[#acafb9] font-medium mb-1">Hapus "{deleteTarget?.name}"?</p>
+            <p className="text-sm text-[#5e616e]">Tindakan ini tidak bisa dibatalkan. File akan dihapus permanen dari server Telegram.</p>
           </div>
         </div>
         <div className="flex gap-3 justify-end">
           <button onClick={() => setDeleteTarget(null)} className="btn btn-ghost px-5" disabled={deleteLoading}>Batal</button>
-          <button onClick={handleDeleteFile} disabled={deleteLoading} className="btn bg-rose-500 hover:bg-rose-600 text-[#3c3c3c] px-5 border-none flex items-center gap-2">
+          <button onClick={handleDeleteFile} disabled={deleteLoading} className="btn bg-rose-500 hover:bg-rose-600 text-white px-5 border-none flex items-center gap-2">
             {deleteLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : null}
             Hapus
           </button>
@@ -1170,13 +1171,13 @@ function DashboardPage() {
         <div className="flex items-start gap-4 mb-6 mt-2">
           <div className="p-3 rounded-full bg-rose-500/10 text-rose-500 shrink-0"><Trash2 size={24} /></div>
           <div>
-            <p className="text-[#777777] font-medium mb-1">Hapus folder "{deleteFolderTarget?.name}"?</p>
-            <p className="text-sm text-[#afafaf]">Folder beserta seluruh file di dalamnya akan dihapus permanen dari Telegram. Tindakan ini tidak dapat dibatalkan. Jika folder berisi subfolder, hapus subfolder terlebih dahulu.</p>
+            <p className="text-[#acafb9] font-medium mb-1">Hapus folder "{deleteFolderTarget?.name}"?</p>
+            <p className="text-sm text-[#5e616e]">Folder beserta seluruh file di dalamnya akan dihapus permanen dari Telegram. Tindakan ini tidak dapat dibatalkan. Jika folder berisi subfolder, hapus subfolder terlebih dahulu.</p>
           </div>
         </div>
         <div className="flex gap-3 justify-end">
           <button onClick={() => setDeleteFolderTarget(null)} className="btn btn-ghost px-5">Batal</button>
-          <button onClick={confirmDeleteFolder} className="btn bg-rose-500 hover:bg-rose-600 text-[#3c3c3c] px-5 border-none">Hapus Folder</button>
+          <button onClick={confirmDeleteFolder} className="btn bg-rose-500 hover:bg-rose-600 text-white px-5 border-none">Hapus Folder</button>
         </div>
       </Modal>
 
@@ -1200,7 +1201,7 @@ function DashboardPage() {
       <Modal open={showMoveModal} onClose={() => { setShowMoveModal(false); setSelectedIds(new Set()) }} title="Pindahkan File">
         <div className="mb-4">
           <label className="label">Pilih Folder Tujuan</label>
-          <select className="input w-full bg-white border-[#e5e5e5]" value={moveTargetFolderId || ''} onChange={(e) => setMoveTargetFolderId(e.target.value || null)}>
+          <select className="input w-full bg-[#121317] border-white/5" value={moveTargetFolderId || ''} onChange={(e) => setMoveTargetFolderId(e.target.value || null)}>
             <option value="">Root (My Drive)</option>
             {allFolders.map(f => (<option key={f._id} value={f._id}>{f.name}</option>))}
           </select>
@@ -1232,40 +1233,40 @@ function DashboardPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.1 }}
               style={{ top: Math.min(contextMenu.y, window.innerHeight - 200), left: Math.min(contextMenu.x, window.innerWidth - 200) }}
-              className="fixed z-[70] w-48 py-1.5 bg-white/95 border border-[#e5e5e5] rounded-xl shadow-2xl backdrop-blur-xl"
+              className="fixed z-[70] w-48 py-1.5 bg-[#121317] border border-white/10 rounded-[10px] shadow-2xl"
             >
               {contextMenu.file && (
                 <>
                   {activeNav !== 'Tempat Sampah' ? (
                     <>
-                      <button onClick={() => { setViewerFile(contextMenu.file); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#777777] hover:bg-[#e5e5e5] hover:text-[#58cc02] flex items-center gap-2"><Eye size={16}/> Buka</button>
-                      <button onClick={() => { setShareTarget(contextMenu.file); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#777777] hover:bg-[#e5e5e5] hover:text-[#58cc02] flex items-center gap-2"><Share2 size={16}/> Bagikan</button>
-                      <button onClick={() => { const a = document.createElement('a'); a.href = `/api/download?fileId=${contextMenu.file?._id}`; a.target = '_blank'; a.click(); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#777777] hover:bg-[#e5e5e5] hover:text-[#58cc02] flex items-center gap-2"><Download size={16}/> Download</button>
-                      <button onClick={() => { setRenameTarget(contextMenu.file); setRenameVal(contextMenu.file?.name || ''); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#777777] hover:bg-[#e5e5e5] hover:text-[#58cc02] flex items-center gap-2"><Pencil size={16}/> Ganti Nama</button>
-                      <div className="h-px bg-[#e5e5e5]/50 my-1" />
+                      <button onClick={() => { setViewerFile(contextMenu.file); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#acafb9] hover:bg-[#1c1d22] hover:text-white flex items-center gap-2"><Eye size={16}/> Buka</button>
+                      <button onClick={() => { setShareTarget(contextMenu.file); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#acafb9] hover:bg-[#1c1d22] hover:text-white flex items-center gap-2"><Share2 size={16}/> Bagikan</button>
+                      <button onClick={() => { const a = document.createElement('a'); a.href = `/api/download?fileId=${contextMenu.file?._id}`; a.target = '_blank'; a.click(); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#acafb9] hover:bg-[#1c1d22] hover:text-white flex items-center gap-2"><Download size={16}/> Download</button>
+                      <button onClick={() => { setRenameTarget(contextMenu.file); setRenameVal(contextMenu.file?.name || ''); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#acafb9] hover:bg-[#1c1d22] hover:text-white flex items-center gap-2"><Pencil size={16}/> Ganti Nama</button>
+                      <div className="h-px bg-white/5 my-1" />
                     </>
                   ) : (
                     <button onClick={() => {
                       fetch('/api/files', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fileId: contextMenu.file?._id, isDeleted: false }) }).then(() => { toast('File dipulihkan', 'success'); load(); setContextMenu(null) })
-                    }} className="w-full px-4 py-2 text-left text-sm text-emerald-400 hover:bg-[#e5e5e5] hover:text-emerald-300 flex items-center gap-2"><RefreshCw size={16}/> Pulihkan</button>
+                    }} className="w-full px-4 py-2 text-left text-sm text-emerald-400 hover:bg-[#1c1d22] hover:text-emerald-300 flex items-center gap-2"><RefreshCw size={16}/> Pulihkan</button>
                   )}
-                  <button onClick={() => { setDeleteTarget(contextMenu.file); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-rose-400 hover:bg-[#e5e5e5] hover:text-rose-300 flex items-center gap-2"><Trash2 size={16}/> {activeNav === 'Tempat Sampah' ? 'Hapus Permanen' : 'Hapus'}</button>
+                  <button onClick={() => { setDeleteTarget(contextMenu.file); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#777a88] hover:bg-[#1c1d22] hover:text-white flex items-center gap-2"><Trash2 size={16}/> {activeNav === 'Tempat Sampah' ? 'Hapus Permanen' : 'Hapus'}</button>
                 </>
               )}
               {contextMenu.folder && (
                 <>
                   {activeNav !== 'Tempat Sampah' ? (
                     <>
-                      <button onClick={() => { openFolder(contextMenu.folder!); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#777777] hover:bg-[#e5e5e5] hover:text-[#58cc02] flex items-center gap-2"><FolderIcon size={16}/> Buka Folder</button>
-                      <button onClick={() => { setRenameFolderTarget(contextMenu.folder); setRenameFolderVal(contextMenu.folder?.name || ''); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#777777] hover:bg-[#e5e5e5] hover:text-[#58cc02] flex items-center gap-2"><Pencil size={16}/> Ganti Nama</button>
-                      <div className="h-px bg-[#e5e5e5]/50 my-1" />
+                      <button onClick={() => { openFolder(contextMenu.folder!); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#acafb9] hover:bg-[#1c1d22] hover:text-white flex items-center gap-2"><FolderIcon size={16}/> Buka Folder</button>
+                      <button onClick={() => { setRenameFolderTarget(contextMenu.folder); setRenameFolderVal(contextMenu.folder?.name || ''); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#acafb9] hover:bg-[#1c1d22] hover:text-white flex items-center gap-2"><Pencil size={16}/> Ganti Nama</button>
+                      <div className="h-px bg-white/5 my-1" />
                     </>
                   ) : (
                     <button onClick={() => {
                       fetch('/api/folders', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folderId: contextMenu.folder?._id, isDeleted: false }) }).then(() => { toast('Folder dipulihkan', 'success'); load(); setContextMenu(null) })
-                    }} className="w-full px-4 py-2 text-left text-sm text-emerald-400 hover:bg-[#e5e5e5] hover:text-emerald-300 flex items-center gap-2"><RefreshCw size={16}/> Pulihkan</button>
+                    }} className="w-full px-4 py-2 text-left text-sm text-emerald-400 hover:bg-[#1c1d22] hover:text-emerald-300 flex items-center gap-2"><RefreshCw size={16}/> Pulihkan</button>
                   )}
-                  <button onClick={() => { setDeleteFolderTarget(contextMenu.folder); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-rose-400 hover:bg-[#e5e5e5] hover:text-rose-300 flex items-center gap-2"><Trash2 size={16}/> {activeNav === 'Tempat Sampah' ? 'Hapus Permanen' : 'Hapus'}</button>
+                  <button onClick={() => { setDeleteFolderTarget(contextMenu.folder); setContextMenu(null) }} className="w-full px-4 py-2 text-left text-sm text-[#777a88] hover:bg-[#1c1d22] hover:text-white flex items-center gap-2"><Trash2 size={16}/> {activeNav === 'Tempat Sampah' ? 'Hapus Permanen' : 'Hapus'}</button>
                 </>
               )}
             </motion.div>
@@ -1280,34 +1281,34 @@ function DashboardPage() {
             initial={{ y: 100, opacity: 0, x: '-50%' }}
             animate={{ y: 0, opacity: 1, x: '-50%' }}
             exit={{ y: 100, opacity: 0, x: '-50%' }}
-            className="fixed bottom-8 left-1/2 z-50 bg-[#e5e5e5]/90 backdrop-blur-xl border border-[#e5e5e5] rounded-2xl p-2 flex items-center gap-1 shadow-2xl shadow-[0_8px_0_#e5e5e5] overflow-x-auto w-[90%] md:w-auto flex-nowrap"
+            className="fixed bottom-8 left-1/2 z-50 bg-[#121317] border border-white/10 rounded-full p-2 flex items-center gap-1 overflow-x-auto w-[90%] md:w-auto flex-nowrap"
           >
-            <div className="px-4 text-sm font-medium text-[#3c3c3c] flex items-center gap-2 border-r border-[#e5e5e5] shrink-0">
-              <span className="w-5 h-5 rounded bg-[#58cc02] text-white flex items-center justify-center text-xs font-bold">{selectedIds.size}</span>
+            <div className="px-4 text-sm font-medium text-white flex items-center gap-2 border-r border-white/10 shrink-0">
+              <span className="w-5 h-5 rounded-full bg-white text-[#08080a] flex items-center justify-center text-xs font-semibold">{selectedIds.size}</span>
             </div>
             {activeNav === 'Tempat Sampah' && (
-              <button onClick={handleRestoreSelected} disabled={actionLoading} className="btn bg-white border-2 border-[#e5e5e5] shadow-[0_4px_0_#e5e5e5] hover:border-[#58cc02] text-[#58cc02] border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
+              <button onClick={handleRestoreSelected} disabled={actionLoading} className="text-[#acafb9] hover:text-white hover:bg-[#1c1d22] rounded-full px-3 py-2 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors shrink-0">
                 <RefreshCw size={16} /> <span className="hidden sm:inline">Pulihkan</span>
               </button>
             )}
-            <button onClick={handleDeleteSelected} disabled={actionLoading} className="btn bg-rose-500/10 hover:bg-[#ffdfe0] text-rose-400 border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
+            <button onClick={handleDeleteSelected} disabled={actionLoading} className="text-[#777a88] hover:text-white hover:bg-[#1c1d22] rounded-full px-3 py-2 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors shrink-0">
               <Trash2 size={16} /> <span className="hidden sm:inline">{activeNav === 'Tempat Sampah' ? 'Hapus Permanen' : 'Hapus'}</span>
             </button>
             {activeNav !== 'Tempat Sampah' && (
               <>
-                <button onClick={() => setShowMoveModal(true)} disabled={actionLoading} className="btn bg-white border-2 border-[#e5e5e5] shadow-[0_4px_0_#e5e5e5] hover:border-[#1cb0f6] text-[#1cb0f6] border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
+                <button onClick={() => setShowMoveModal(true)} disabled={actionLoading} className="text-[#acafb9] hover:text-white hover:bg-[#1c1d22] rounded-full px-3 py-2 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors shrink-0">
                   <MoveRight size={16} /> <span className="hidden sm:inline">Pindahkan</span>
                 </button>
-                <button onClick={handleStarSelected} disabled={actionLoading} className="btn bg-white border-2 border-[#e5e5e5] shadow-[0_4px_0_#e5e5e5] hover:border-[#ffc800] text-[#ffc800] border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
+                <button onClick={handleStarSelected} disabled={actionLoading} className="text-[#acafb9] hover:text-white hover:bg-[#1c1d22] rounded-full px-3 py-2 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors shrink-0">
                   <Star size={16} /> <span className="hidden sm:inline">Bintang</span>
                 </button>
-                <button onClick={handleDownloadSelected} disabled={actionLoading} className="btn bg-[#f7f7f7] hover:bg-[#e5e5e5] text-[#777777] border-none px-3 py-2 flex items-center gap-2 rounded-xl text-xs sm:text-sm font-medium transition-colors shrink-0">
+                <button onClick={handleDownloadSelected} disabled={actionLoading} className="text-[#acafb9] hover:text-white hover:bg-[#1c1d22] rounded-full px-3 py-2 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors shrink-0">
                   <Download size={16} /> <span className="hidden sm:inline">Download</span>
                 </button>
               </>
             )}
-            <div className="w-px h-6 bg-[#e5e5e5] mx-1 shrink-0" />
-            <button onClick={exitSelectMode} className="p-2 rounded-xl hover:bg-[#e5e5e5] text-[#777777] hover:text-[#58cc02] transition-colors shrink-0 mr-1">
+            <div className="w-px h-6 bg-white/10 mx-1 shrink-0" />
+            <button onClick={exitSelectMode} className="p-2 rounded-full hover:bg-[#1c1d22] text-[#5e616e] hover:text-white transition-colors shrink-0 mr-1">
               <X size={18} />
             </button>
           </motion.div>
@@ -1316,10 +1317,10 @@ function DashboardPage() {
 
       {/* Modal Hapus Massal */}
       <Modal open={showBulkDeleteModal} onClose={() => setShowBulkDeleteModal(false)} title="Hapus File Terpilih">
-        <p className="text-[#777777] mb-6">Apakah kamu yakin ingin menghapus {selectedIds.size} file yang dipilih? Tindakan ini tidak dapat dibatalkan.</p>
+        <p className="text-[#acafb9] mb-6">Apakah kamu yakin ingin menghapus {selectedIds.size} file yang dipilih? Tindakan ini tidak dapat dibatalkan.</p>
         <div className="flex justify-end gap-3">
-          <button onClick={() => setShowBulkDeleteModal(false)} className="px-4 py-2 text-[#777777] hover:text-[#58cc02] transition-colors" disabled={actionLoading}>Batal</button>
-          <button onClick={performBulkDelete} className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-[#3c3c3c] rounded-lg transition-colors font-medium" disabled={actionLoading}>
+          <button onClick={() => setShowBulkDeleteModal(false)} className="px-4 py-2 text-[#acafb9] hover:text-white transition-colors" disabled={actionLoading}>Batal</button>
+          <button onClick={performBulkDelete} className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-[10px] transition-colors font-medium" disabled={actionLoading}>
             {actionLoading ? 'Menghapus...' : 'Hapus'}
           </button>
         </div>

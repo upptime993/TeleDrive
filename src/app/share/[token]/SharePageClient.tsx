@@ -18,10 +18,10 @@ function FileTypeIcon({ mimeType, size = 56 }: { mimeType: string; size?: number
   if (mimeType.startsWith('image/')) return <FileImage {...props} className="text-purple-400" />
   if (mimeType.startsWith('video/')) return <FileVideo {...props} className="text-pink-400" />
   if (mimeType.startsWith('audio/')) return <FileAudio {...props} className="text-emerald-400" />
-  if (mimeType === 'application/pdf') return <FileText {...props} className="text-[#ff4b4b]" />
-  if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('tar')) return <FileArchive {...props} className="text-[#ffc800]" />
+  if (mimeType === 'application/pdf') return <FileText {...props} className="text-rose-400" />
+  if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('tar')) return <FileArchive {...props} className="text-amber-400" />
   if (mimeType.startsWith('text/')) return <FileText {...props} className="text-blue-400" />
-  return <FileIconGeneric {...props} className="text-[#777777]" />
+  return <FileIconGeneric {...props} style={{ color: '#777a88' }} />
 }
 
 function formatBytes(bytes: number): string {
@@ -61,27 +61,33 @@ export default function SharePageClient({ token }: { token: string }) {
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    setTimeout(() => {
-      setDownloading(false)
-      setDownloaded(true)
-    }, 1500)
+    setTimeout(() => { setDownloading(false); setDownloaded(true) }, 1500)
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7] flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: '#000000' }}>
       {/* Header */}
-      <header className="border-b border-[#e5e5e5] bg-white border-b-2 border-[#e5e5e5]">
+      <header style={{ background: '#030304', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-[#58cc02] flex items-center justify-center shadow-[0_4px_0_#3f8f01] group-hover:shadow-[0_4px_0_#3f8f01] transition-all">
-              <Cloud size={20} className="text-[#3c3c3c]" />
+            <div
+              className="w-8 h-8 rounded-[10px] flex items-center justify-center"
+              style={{ background: '#1c1d22', border: '1px solid rgba(255,255,255,0.10)' }}
+            >
+              <Cloud size={18} color="#ffffff" />
             </div>
             <div>
-              <div className="font-bold text-[#3c3c3c] tracking-tight">TeleDrive</div>
-              <div className="text-[10px] text-[#afafaf] uppercase tracking-wider">Cloud Storage</div>
+              <div className="font-display" style={{ color: '#ffffff', fontSize: '16px', fontWeight: 500, letterSpacing: '0.01em' }}>TeleDrive</div>
+              <div style={{ fontSize: '10px', color: '#5e616e', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Cloud Storage</div>
             </div>
           </Link>
-          <Link href="/login" className="text-sm text-[#777777] hover:text-[#58cc02] transition-colors font-medium">
+          <Link
+            href="/login"
+            className="text-sm transition-colors"
+            style={{ color: '#acafb9' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#ffffff' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#acafb9' }}
+          >
             Login →
           </Link>
         </div>
@@ -93,69 +99,96 @@ export default function SharePageClient({ token }: { token: string }) {
 
           {loading && (
             <div className="text-center">
-              <div className="w-12 h-12 border-2 border-[#e5e5e5] border-t-[#58cc02] rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-[#777777]">Memuat informasi file...</p>
+              <div
+                className="w-10 h-10 rounded-full border-2 animate-spin mx-auto mb-4"
+                style={{ borderColor: 'rgba(255,255,255,0.10)', borderTopColor: '#ffffff' }}
+              />
+              <p style={{ color: '#5e616e', fontSize: '14px' }}>Memuat informasi file...</p>
             </div>
           )}
 
           {!loading && error && (
-            <div className="text-center bg-white border border-[#e5e5e5] rounded-3xl p-12">
-              <div className="w-20 h-20 rounded-2xl bg-[#ffdfe0] flex items-center justify-center mx-auto mb-6">
-                <AlertCircle size={40} className="text-[#ff4b4b]" />
+            <div
+              className="text-center p-12 rounded-2xl"
+              style={{ background: '#121317', border: '1px solid rgba(255,255,255,0.05)' }}
+            >
+              <div
+                className="w-20 h-20 rounded-[10px] flex items-center justify-center mx-auto mb-6"
+                style={{ background: '#1c1d22', border: '1px solid rgba(255,255,255,0.05)' }}
+              >
+                <AlertCircle size={36} style={{ color: '#777a88' }} />
               </div>
-              <h2 className="text-xl font-bold text-[#3c3c3c] mb-2">Link Tidak Valid</h2>
-              <p className="text-[#777777] mb-8">{error}</p>
-              <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#f7f7f7] border border-[#e5e5e5] text-[#3c3c3c] font-semibold hover:bg-[#e5e5e5] transition-colors">
+              <h2
+                className="font-display mb-2"
+                style={{ fontSize: '24px', color: '#ffffff', fontWeight: 500, letterSpacing: '0.01em' }}
+              >
+                Link Tidak Valid
+              </h2>
+              <p style={{ color: '#5e616e', fontSize: '14px', marginBottom: '2rem' }}>{error}</p>
+              <Link href="/" className="btn-ghost inline-flex items-center gap-2">
                 Kembali ke Beranda
               </Link>
             </div>
           )}
 
           {!loading && info && (
-            <div className="bg-white border border-[#e5e5e5] rounded-3xl overflow-hidden shadow-2xl shadow-black/40 backdrop-blur">
-
+            <div
+              className="rounded-[10px] overflow-hidden"
+              style={{ background: '#121317', border: '1px solid rgba(255,255,255,0.05)' }}
+            >
               {/* File Header */}
-              <div className="p-8 border-b border-[#e5e5e5] text-center relative overflow-hidden">
-                {/* Background glow */}
-                <div className="absolute inset-0  pointer-events-none" />
-                <div className="relative">
-                  <div className="w-24 h-24 rounded-2xl bg-[#f7fff0] border border-[#e5e5e5] flex items-center justify-center mx-auto mb-5 shadow-xl">
-                    <FileTypeIcon mimeType={info.mimeType} size={48} />
-                  </div>
-                  <h1 className="text-xl font-bold text-[#3c3c3c] mb-2 break-all leading-tight px-4">
-                    {info.fileName}
-                  </h1>
-                  <div className="flex items-center justify-center gap-3 flex-wrap">
-                    <span className="text-sm text-[#777777] bg-[#f7f7f7] px-3 py-1 rounded-full border border-[#e5e5e5]">
-                      {formatBytes(info.fileSize)}
-                    </span>
-                    <span className="text-sm text-[#777777] bg-[#f7f7f7] px-3 py-1 rounded-full border border-[#e5e5e5]">
-                      {info.mimeType.split('/')[1]?.toUpperCase() || 'FILE'}
-                    </span>
-                  </div>
+              <div
+                className="p-8 text-center"
+                style={{ background: '#08080a', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+              >
+                <div
+                  className="w-20 h-20 rounded-[10px] flex items-center justify-center mx-auto mb-5"
+                  style={{ background: '#1c1d22', border: '1px solid rgba(255,255,255,0.05)' }}
+                >
+                  <FileTypeIcon mimeType={info.mimeType} size={40} />
+                </div>
+                <h1
+                  className="font-display mb-3 break-all leading-tight px-4"
+                  style={{ fontSize: '20px', color: '#ffffff', fontWeight: 500, letterSpacing: '0.01em' }}
+                >
+                  {info.fileName}
+                </h1>
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  <span
+                    className="text-sm px-3 py-1 rounded-full"
+                    style={{ background: '#1c1d22', border: '1px solid rgba(255,255,255,0.05)', color: '#acafb9' }}
+                  >
+                    {formatBytes(info.fileSize)}
+                  </span>
+                  <span
+                    className="text-sm px-3 py-1 rounded-full"
+                    style={{ background: '#1c1d22', border: '1px solid rgba(255,255,255,0.05)', color: '#acafb9' }}
+                  >
+                    {info.mimeType.split('/')[1]?.toUpperCase() || 'FILE'}
+                  </span>
                 </div>
               </div>
 
               {/* File Info */}
-              <div className="px-8 py-5 space-y-3 border-b border-[#e5e5e5]">
+              <div className="px-8 py-5 space-y-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#afafaf] flex items-center gap-2">
-                    <Download size={14} /> Total Diunduh
+                  <span className="flex items-center gap-2" style={{ color: '#5e616e', fontWeight: 500 }}>
+                    <Download size={13} /> Total Diunduh
                   </span>
-                  <span className="text-[#3c3c3c] font-medium">{info.downloadCount.toLocaleString('id-ID')}x</span>
+                  <span style={{ color: '#e2e3e9', fontWeight: 500 }}>{info.downloadCount.toLocaleString('id-ID')}x</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#afafaf] flex items-center gap-2">
-                    <Clock size={14} /> Dibagikan pada
+                  <span className="flex items-center gap-2" style={{ color: '#5e616e', fontWeight: 500 }}>
+                    <Clock size={13} /> Dibagikan pada
                   </span>
-                  <span className="text-[#3c3c3c] font-medium">{fmtDate(info.createdAt)}</span>
+                  <span style={{ color: '#e2e3e9', fontWeight: 500 }}>{fmtDate(info.createdAt)}</span>
                 </div>
                 {info.expiresAt && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#afafaf] flex items-center gap-2">
-                      <Clock size={14} /> Kadaluarsa
+                    <span className="flex items-center gap-2" style={{ color: '#5e616e', fontWeight: 500 }}>
+                      <Clock size={13} /> Kadaluarsa
                     </span>
-                    <span className="text-[#ffc800] font-medium">{fmtDate(info.expiresAt)}</span>
+                    <span style={{ color: '#acafb9', fontWeight: 500 }}>{fmtDate(info.expiresAt)}</span>
                   </div>
                 )}
               </div>
@@ -165,33 +198,27 @@ export default function SharePageClient({ token }: { token: string }) {
                 <button
                   onClick={handleDownload}
                   disabled={downloading || downloaded}
-                  className={`w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all duration-300 ${
+                  className="w-full py-3.5 rounded-full font-semibold text-base flex items-center justify-center gap-3 transition-all duration-300"
+                  style={
                     downloaded
-                      ? 'bg-[#d7ffb8] border-2 border-[#58cc02] text-[#58cc02]'
+                      ? { background: '#1c1d22', border: '1px solid rgba(255,255,255,0.05)', color: '#e2e3e9', cursor: 'default' }
                       : downloading
-                        ? 'bg-[#f7fff0] border-2 border-[#58cc02] text-[#58cc02] cursor-wait'
-                        : 'bg-[#58cc02] hover:bg-[#4ab001] text-white shadow-[0_6px_0_#3f8f01] active:translate-y-[6px] active:shadow-none'
-                  }`}
+                      ? { background: '#1c1d22', border: '1px solid rgba(255,255,255,0.05)', color: '#acafb9', cursor: 'wait' }
+                      : { background: '#ffffff', color: '#08080a', border: 'none' }
+                  }
+                  onMouseEnter={e => { if (!downloading && !downloaded) (e.currentTarget as HTMLButtonElement).style.background = '#e2e3e9' }}
+                  onMouseLeave={e => { if (!downloading && !downloaded) (e.currentTarget as HTMLButtonElement).style.background = '#ffffff' }}
                 >
                   {downloaded ? (
-                    <>
-                      <CheckCircle2 size={22} />
-                      Download Dimulai!
-                    </>
+                    <><CheckCircle2 size={20} /> Download Dimulai!</>
                   ) : downloading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                      Menyiapkan Download...
-                    </>
+                    <><div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: 'rgba(255,255,255,0.20)', borderTopColor: '#acafb9' }} /> Menyiapkan Download...</>
                   ) : (
-                    <>
-                      <Download size={22} />
-                      Download File ({formatBytes(info.fileSize)})
-                    </>
+                    <><Download size={20} /> Download File ({formatBytes(info.fileSize)})</>
                   )}
                 </button>
 
-                <p className="text-center text-xs text-[#afafaf] mt-4">
+                <p className="text-center mt-4" style={{ fontSize: '12px', color: '#5e616e' }}>
                   File ini dibagikan via TeleDrive — Cloud storage berbasis Telegram
                 </p>
               </div>
@@ -200,9 +227,15 @@ export default function SharePageClient({ token }: { token: string }) {
 
           {/* Branding Footer */}
           <div className="text-center mt-8">
-            <p className="text-sm text-[#afafaf]">
+            <p style={{ fontSize: '13px', color: '#5e616e' }}>
               Ingin menyimpan file kamu sendiri?{' '}
-              <Link href="/login?tab=register" className="text-[#58cc02] hover:text-[#4ab001] transition-colors font-medium">
+              <Link
+                href="/login?tab=register"
+                className="underline transition-colors"
+                style={{ color: '#acafb9' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#ffffff' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#acafb9' }}
+              >
                 Daftar gratis →
               </Link>
             </p>

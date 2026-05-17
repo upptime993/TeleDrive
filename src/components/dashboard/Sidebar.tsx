@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useState, useMemo } from 'react'
+import { useMemo } from 'react'
 
 export type NavItem = 'My Drive' | 'Recent' | 'Starred' | 'Shared with me' | 'Foto' | 'Video' | 'Document' | 'Tempat Sampah';
 
@@ -37,10 +37,7 @@ export default function Sidebar({ workerStatus, onRefreshWorker, isOpen, onClose
 
   const { totalUsedFormatted, fileCount } = useMemo(() => {
     const totalBytes = files.reduce((acc, f) => acc + (f.size || 0), 0)
-    return {
-      totalUsedFormatted: formatBytes(totalBytes),
-      fileCount: files.length,
-    }
+    return { totalUsedFormatted: formatBytes(totalBytes), fileCount: files.length }
   }, [files])
 
   const navItems: { icon: any, label: NavItem }[] = [
@@ -55,42 +52,60 @@ export default function Sidebar({ workerStatus, onRefreshWorker, isOpen, onClose
   ]
 
   const SidebarContent = (
-    <div className="w-64 flex-shrink-0 flex flex-col h-full" style={{ background: '#ffffff', borderRight: '2px solid #e5e5e5' }}>
+    <div
+      className="w-64 flex-shrink-0 flex flex-col h-full"
+      style={{ background: '#030304', borderRight: '1px solid rgba(255,255,255,0.05)' }}
+    >
       {/* Logo */}
       <div className="p-5 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#58cc02' }}>
-            <Cloud size={20} color="white" />
+        <Link href="/dashboard" className="flex items-center gap-3">
+          <div
+            className="w-8 h-8 rounded-[10px] flex items-center justify-center"
+            style={{ background: '#1c1d22', border: '1px solid rgba(255,255,255,0.10)' }}
+          >
+            <Cloud size={18} color="#ffffff" />
           </div>
           <div>
-            <div className="font-heading" style={{ color: '#3c3c3c', fontSize: '1.1rem' }}>TeleDrive</div>
-            <div style={{ fontSize: '10px', fontWeight: 700, color: '#afafaf', textTransform: 'uppercase', letterSpacing: '0.053em' }}>Cloud Storage</div>
+            <div
+              className="font-display"
+              style={{ color: '#ffffff', fontSize: '16px', fontWeight: 500, letterSpacing: '0.01em' }}
+            >
+              TeleDrive
+            </div>
+            <div style={{ fontSize: '10px', fontWeight: 500, color: '#5e616e', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Cloud Storage
+            </div>
           </div>
         </Link>
-        <button onClick={onClose} className="md:hidden p-2 rounded-xl transition-colors" style={{ color: '#afafaf' }}>
-          <X size={20} />
+        <button
+          onClick={onClose}
+          className="md:hidden p-2 rounded-[10px] transition-colors"
+          style={{ color: '#5e616e' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.background = '#1c1d22' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
+        >
+          <X size={18} />
         </button>
       </div>
 
       {/* Nav */}
-      <nav className="px-3 flex-1 overflow-y-auto space-y-1">
+      <nav className="px-3 flex-1 overflow-y-auto space-y-0.5">
         {navItems.map(item => {
           const isActive = activeNav === item.label
           return (
             <button
               key={item.label}
-              onClick={() => { onNavChange(item.label); onClose(); }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-sm transition-all"
+              onClick={() => { onNavChange(item.label); onClose() }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition-all"
               style={{
-                background: isActive ? '#d7ffb8' : 'transparent',
-                color: isActive ? '#58cc02' : '#777777',
-                borderLeft: isActive ? '4px solid #58cc02' : '4px solid transparent',
-                paddingLeft: isActive ? '10px' : '12px',
+                background: isActive ? '#1c1d22' : 'transparent',
+                color: isActive ? '#ffffff' : '#777a88',
+                fontWeight: isActive ? 600 : 400,
               }}
-              onMouseEnter={e => { if (!isActive) { (e.currentTarget as HTMLButtonElement).style.background = '#f7f7f7'; (e.currentTarget as HTMLButtonElement).style.color = '#3c3c3c' } }}
-              onMouseLeave={e => { if (!isActive) { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#777777' } }}
+              onMouseEnter={e => { if (!isActive) { (e.currentTarget as HTMLButtonElement).style.background = '#121317'; (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' } }}
+              onMouseLeave={e => { if (!isActive) { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#777a88' } }}
             >
-              <item.icon size={18} style={{ color: isActive ? '#58cc02' : '#afafaf', flexShrink: 0 }} />
+              <item.icon size={16} style={{ color: isActive ? '#ffffff' : '#5e616e', flexShrink: 0 }} />
               {item.label}
             </button>
           )
@@ -98,72 +113,89 @@ export default function Sidebar({ workerStatus, onRefreshWorker, isOpen, onClose
       </nav>
 
       {/* Bottom Section */}
-      <div className="p-3 space-y-3" style={{ borderTop: '2px solid #e5e5e5' }}>
+      <div className="p-3 space-y-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         {/* Storage Indicator */}
-        <div className="px-3 py-3 rounded-xl" style={{ background: '#f7fff0', border: '2px solid #d7ffb8' }}>
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2" style={{ fontSize: '0.75rem', fontWeight: 700, color: '#58cc02' }}>
-              <HardDrive size={14} />
+        <div
+          className="px-3 py-3 rounded-[10px]"
+          style={{ background: '#121317', border: '1px solid rgba(255,255,255,0.05)' }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2" style={{ fontSize: '12px', fontWeight: 500, color: '#acafb9' }}>
+              <HardDrive size={13} />
               <span>Storage</span>
             </div>
-            <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: 6, background: '#ffc700', color: '#3c3c3c' }}>PRO</span>
+            {/* PRO badge — golden gradient (one of 3 allowed uses) */}
+            <span
+              style={{
+                fontSize: '10px', fontWeight: 700, padding: '2px 8px',
+                borderRadius: 9999,
+                background: 'linear-gradient(103deg, rgb(174,147,87), rgb(255,240,204) 40%, rgb(174,147,87) 70%)',
+                color: '#08080a',
+              }}
+            >
+              PRO
+            </span>
           </div>
-          <div style={{ fontSize: '11px', color: '#777777', display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-            <span><span style={{ color: '#3c3c3c', fontWeight: 700 }}>{totalUsedFormatted}</span> dipakai</span>
-            <span style={{ color: '#afafaf' }}>{fileCount} file · Unlimited</span>
+          <div style={{ fontSize: '12px', color: '#5e616e', display: 'flex', justifyContent: 'space-between' }}>
+            <span><span style={{ color: '#ffffff', fontWeight: 500 }}>{totalUsedFormatted}</span> dipakai</span>
+            <span>{fileCount} file · Unlimited</span>
           </div>
         </div>
 
-        {/* Worker Status */}
+        {/* Worker Status — monochrome, no green */}
         <div
-          className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-colors"
+          className="flex items-center justify-between px-3 py-2.5 rounded-[10px] text-xs transition-colors"
           style={
             isOnline
-              ? { background: '#d7ffb8', border: '2px solid #58cc02', color: '#3f8f01' }
+              ? { background: '#121317', border: '1px solid rgba(255,255,255,0.05)', color: '#acafb9' }
               : isChecking
-              ? { background: '#fff9e6', border: '2px solid #ffc700', color: '#b87d00' }
-              : { background: '#fff0f5', border: '2px solid #cc348d', color: '#cc348d' }
+              ? { background: '#121317', border: '1px solid rgba(255,255,255,0.05)', color: '#777a88' }
+              : { background: '#1c1d22', border: '1px solid rgba(255,255,255,0.10)', color: '#777a88' }
           }
         >
           <div className="flex items-center gap-2">
-            {isOnline ? <Wifi size={14} /> : isChecking ? <Activity size={14} className="animate-pulse" /> : <WifiOff size={14} />}
-            <span>{isOnline ? 'Network Online' : isChecking ? 'Connecting...' : 'Network Offline'}</span>
+            {isOnline ? <Wifi size={13} /> : isChecking ? <Activity size={13} className="animate-pulse" /> : <WifiOff size={13} />}
+            <span style={{ fontWeight: 500 }}>{isOnline ? 'Network Online' : isChecking ? 'Connecting...' : 'Network Offline'}</span>
           </div>
           <button
             onClick={onRefreshWorker}
             className="p-1 rounded-md transition-colors"
-            style={{ background: 'rgba(0,0,0,0.08)' }}
+            style={{ background: 'rgba(255,255,255,0.05)' }}
             title="Refresh connection"
           >
-            <RefreshCw size={12} className={isChecking ? 'animate-spin' : ''} />
+            <RefreshCw size={11} className={isChecking ? 'animate-spin' : ''} />
           </button>
         </div>
 
         {/* User Profile */}
-        <div className="flex items-center gap-3 px-3 py-2 rounded-xl transition-colors cursor-pointer" style={{ border: '2px solid transparent' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = '#f7f7f7'; (e.currentTarget as HTMLDivElement).style.borderColor = '#e5e5e5' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; (e.currentTarget as HTMLDivElement).style.borderColor = 'transparent' }}
+        <div
+          className="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-colors cursor-pointer"
+          onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = '#121317' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
         >
-          <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0" style={{ background: '#d7ffb8', color: '#58cc02', border: '2px solid #58cc02' }}>
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs shrink-0"
+            style={{ background: '#1c1d22', color: '#ffffff', border: '1px solid rgba(255,255,255,0.10)' }}
+          >
             {session?.user?.name?.[0]?.toUpperCase() ?? '?'}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-bold truncate" style={{ color: '#3c3c3c' }}>
+            <div className="text-sm truncate" style={{ color: '#ffffff', fontWeight: 500 }}>
               {session?.user?.name ?? 'Loading...'}
             </div>
-            <div className="truncate" style={{ fontSize: '11px', color: '#afafaf' }}>
+            <div className="truncate" style={{ fontSize: '11px', color: '#5e616e' }}>
               {session?.user?.email ?? ''}
             </div>
           </div>
           <button
-            onClick={(e) => { e.stopPropagation(); signOut({ callbackUrl: '/login' }); }}
-            className="p-1.5 rounded-xl transition-colors shrink-0"
-            style={{ color: '#afafaf' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#cc348d'; (e.currentTarget as HTMLButtonElement).style.background = '#fff0f5' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#afafaf'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
+            onClick={(e) => { e.stopPropagation(); signOut({ callbackUrl: '/login' }) }}
+            className="p-1.5 rounded-[10px] transition-colors shrink-0"
+            style={{ color: '#5e616e' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.background = '#1c1d22' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
             title="Sign Out"
           >
-            <LogOut size={16} />
+            <LogOut size={15} />
           </button>
         </div>
       </div>
@@ -187,14 +219,14 @@ export default function Sidebar({ workerStatus, onRefreshWorker, isOpen, onClose
               exit={{ opacity: 0 }}
               onClick={onClose}
               className="fixed inset-0 z-40 md:hidden"
-              style={{ background: 'rgba(0,0,0,0.4)' }}
+              style={{ background: 'rgba(0,0,0,0.70)' }}
             />
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 bottom-0 z-50 md:hidden shadow-2xl"
+              className="fixed top-0 left-0 bottom-0 z-50 md:hidden"
             >
               {SidebarContent}
             </motion.div>

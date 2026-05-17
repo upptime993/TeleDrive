@@ -1,188 +1,192 @@
-# Slash — Style Reference
-> Midnight Ledger, Obsidian Surfaces
+# Supabase — Style Reference
+> Midnight Terminal Interface — a dark, organized, and quietly powerful workspace.
 
 **Theme:** dark
 
-Slash adopts a high-contrast dark mode aesthetic for business finance: black canvases, subtly layered dark gray surfaces, and a striking white primary text. Inter typography provides utilitarian clarity, while Ivy Presto adds a touch of classic sophistication to display headlines. The system minimizes color, primarily using off-white for interaction and a warm, golden gradient for subtle accents and visual depth on elevated elements.
+Supabase embodies a technical, deeply functional aesthetic like a high-performance terminal where every element serves a clear purpose. Dark, layered surfaces create a sense of depth and focus, akin to illuminated code on a dark screen. The primary green accent color, `Supabase Green`, acts as a confident highlight, drawing attention to interactive elements without being overwhelming. Typography prioritizes clarity and a dense information hierarchy, ensuring readability even with intricate data displays.
 
 ## Tokens — Colors
 
 | Name | Value | Token | Role |
 |------|-------|-------|------|
-| Midnight Ink | `#000000` | `--color-midnight-ink` | Page background, deepest surface level. Creates a sense of depth and seriousness |
-| Obsidian Surface | `#030304` | `--color-obsidian-surface` | Elevated card backgrounds, deeper shadows. A subtle lift from the main background |
-| Charcoal Canvas | `#08080a` | `--color-charcoal-canvas` | Primary surface background, such as panels and main content areas |
-| Pewter Accent | `#121317` | `--color-pewter-accent` | Subtle background for card, button, and other interactive elements, providing a soft lift |
-| Slate Gray | `#1c1d22` | `--color-slate-gray` | Component backgrounds, such as card details and selected states. Less saturated than Charcoal Canvas |
-| Ash Text | `#5e616e` | `--color-ash-text` | Muted secondary text, placeholder text, subtle borders. For less prominent information |
-| Stone Text | `#777a88` | `--color-stone-text` | Tertiary text, subtle icons, inactive navigation items. Lower hierarchy content |
-| Silver Text | `#acafb9` | `--color-silver-text` | Helper text, slightly more prominent than Stone Text |
-| Porcelain Text | `#cdcdcd` | `--color-porcelain-text` | Less important body text, slight relief from pure white |
-| White Frost | `#e2e3e9` | `--color-white-frost` | Dominant body text, strong contrast against dark backgrounds. Also used for outlined borders |
-| Pure White | `#ffffff` | `--color-pure-white` | Primary headings, active states, emphasized text, and button backgrounds. The brightest element |
-| Golden Gradient | `linear-gradient(103deg, rgb(174, 147, 87), rgb(255, 240, 204) 40%, rgb(174, 147, 87) 70%, rgba(189, 157, 79, 0))` | `--color-golden-gradient` | Decorative highlights, subtle hover effects, linear gradients for elevated elements. Provides a touch of luxury and prestige |
+| Midnight Abyss | `#000000` | `--color-midnight-abyss` | Deepest background elements, occasional graphic fill. |
+| Ebony Canvas | `#121212` | `--color-ebony-canvas` | Primary page background, base surface for components. |
+| Graphite Base | `#242424` | `--color-graphite-base` | Alternative surface background, button background for secondary actions, subtle borders. |
+| Steel Surface | `#2e2e2` | `--color-steel-surface` | Card backgrounds, elevated UI elements, default input backgrounds. The subtle deviation from pure black creates visual layering. |
+| Carbon Border | `#393939` | `--color-carbon-border` | Input borders, dividers, subtle separators. |
+| Iron Outline | `#4d4d4d` | `--color-iron-outline` | Subtle text, icon strokes, secondary graphic elements, subtle borders. |
+| Mid-Gray Text | `#898989` | `--color-mid-gray-text` | Muted body text, secondary information, disabled states. |
+| Silver Highlight | `#b4b4b4` | `--color-silver-highlight` | Lightest neutral text for contrast on dark backgrounds, secondary navigation items. |
+| Whiteout | `#fafafa` | `--color-whiteout` | Primary headings, body text, interactive text on buttons, icons. High contrast for critical information. |
+| Supabase Green | `#3ecf8` | `--color-supabase-green` | Key interaction accents, prominent headings, success indicators, interactive links. The signature brand color. |
+| Deep Sea Green | `#1f4b37` | `--color-deep-sea-green` | Subtle border for primary action buttons, hover states that deepen the brand green. |
+| Forest Call to Action | `#006239` | `--color-forest-call-to-action` | Primary call-to-action button background. Opaque and declarative. |
+| Glow Green | `#00c573` | `--color-glow-green` | Link hover states, subtle accent in decorative elements if needed. |
+| Shadow Green | `#002918` | `--color-shadow-green` | Rare background color, likely for specific brand moments or deep elements. |
 
 ## Tokens — Typography
 
-### Inter — Primary typeface for all UI elements, body text, and functional components. Its clean, sans-serif design maintains legibility and a modern, technical feel across various densities and scales. · `--font-inter`
-- **Substitute:** system-ui
-- **Weights:** 300, 400, 500, 600, 700
-- **Sizes:** 12px, 13px, 14px, 15px, 16px, 18px, 20px, 24px, 32px, 48px, 52px
-- **Line height:** 1.00, 1.13, 1.25, 1.33, 1.38, 1.43, 1.50, 1.56
-- **Letter spacing:** -0.007, -0.007, -0.013, -0.013, -0.02, -0.02, -0.022, -0.025, -0.025, -0.04, -0.04
-- **Role:** Primary typeface for all UI elements, body text, and functional components. Its clean, sans-serif design maintains legibility and a modern, technical feel across various densities and scales.
-
-### Ivy Presto — Decorative display typeface for large, impactful headlines and hero text. The serif design provides an air of traditional luxury and authority, contrasting with the utilitarian Inter. · `--font-ivy-presto`
-- **Substitute:** Playfair Display
+### Circular — Primary UI font for all headings, body text, labels, and buttons. Offers excellent readability and a strong character with its subtly humanist touch. · `--font-circular`
+- **Substitute:** Inter
 - **Weights:** 400, 500
-- **Sizes:** 32px, 52px, 64px, 88px
-- **Line height:** 1.00, 1.13, 1.25
-- **Letter spacing:** 0.01, 0.01, 0.01, 0.01
-- **Role:** Decorative display typeface for large, impactful headlines and hero text. The serif design provides an air of traditional luxury and authority, contrasting with the utilitarian Inter.
+- **Sizes:** 12px, 14px, 16px, 18px, 24px, 36px, 72px
+- **Line height:** 1.00, 1.11, 1.20, 1.25, 1.33, 1.38, 1.43, 1.50, 1.56
+- **Letter spacing:** -0.0070em
+- **Role:** Primary UI font for all headings, body text, labels, and buttons. Offers excellent readability and a strong character with its subtly humanist touch.
+
+### Source Code Pro — Monospaced font for code snippets, technical data, or whenever a fixed-width, precise feel is required. · `--font-source-code-pro`
+- **Substitute:** Menlo
+- **Weights:** 400
+- **Sizes:** 12px
+- **Line height:** 1.33
+- **Letter spacing:** 0.1000em
+- **Role:** Monospaced font for code snippets, technical data, or whenever a fixed-width, precise feel is required.
 
 ### Type Scale
 
 | Role | Size | Line Height | Letter Spacing | Token |
 |------|------|-------------|----------------|-------|
-| caption | 12px | 1.5 | -0.007px | `--text-caption` |
-| body-sm | 14px | 1.43 | -0.013px | `--text-body-sm` |
-| body | 16px | 1.38 | -0.02px | `--text-body` |
-| subheading | 20px | 1.33 | -0.022px | `--text-subheading` |
-| heading | 32px | 1.25 | -0.025px | `--text-heading` |
-| heading-lg | 48px | 1.13 | -0.04px | `--text-heading-lg` |
-| display | 88px | 1 | 0.01px | `--text-display` |
+| caption | 12px | 1.56 | -0.007px | `--text-caption` |
+| body-sm | 14px | 1.5 | -0.007px | `--text-body-sm` |
+| body | 16px | 1.43 | -0.007px | `--text-body` |
+| subheading | 18px | 1.38 | -0.007px | `--text-subheading` |
+| heading | 24px | 1.33 | -0.007px | `--text-heading` |
+| heading-lg | 36px | 1.25 | -0.007px | `--text-heading-lg` |
+| display | 72px | 1.11 | -0.007px | `--text-display` |
 
 ## Tokens — Spacing & Shapes
 
-**Density:** compact
+**Base unit:** 8px
+
+**Density:** comfortable
 
 ### Spacing Scale
 
 | Name | Value | Token |
 |------|-------|-------|
-| 4 | 4px | `--spacing-4` |
-| 6 | 6px | `--spacing-6` |
 | 8 | 8px | `--spacing-8` |
-| 9 | 9px | `--spacing-9` |
-| 10 | 10px | `--spacing-10` |
-| 12 | 12px | `--spacing-12` |
-| 14 | 14px | `--spacing-14` |
 | 16 | 16px | `--spacing-16` |
-| 20 | 20px | `--spacing-20` |
-| 22 | 22px | `--spacing-22` |
 | 24 | 24px | `--spacing-24` |
-| 28 | 28px | `--spacing-28` |
 | 32 | 32px | `--spacing-32` |
 | 40 | 40px | `--spacing-40` |
-| 105 | 105px | `--spacing-105` |
+| 48 | 48px | `--spacing-48` |
+| 64 | 64px | `--spacing-64` |
+| 80 | 80px | `--spacing-80` |
+| 96 | 96px | `--spacing-96` |
+| 112 | 112px | `--spacing-112` |
+| 128 | 128px | `--spacing-128` |
 | 224 | 224px | `--spacing-224` |
 
 ### Border Radius
 
 | Element | Value |
 |---------|-------|
-| md | 10px |
-| sm | 2px |
-| none | 0px |
-| pill | 9999px |
+| cards | 16px |
+| inputs | 6px |
+| buttons | 6px |
+| pillButtons | 9999px |
+
+### Shadows
+
+| Name | Value | Token |
+|------|-------|-------|
+| sm | `rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0...` | `--shadow-sm` |
 
 ### Layout
 
-- **Page max-width:** 1216px
-- **Section gap:** 160px
-- **Card padding:** 32px
-- **Element gap:** 6px
+- **Card padding:** 24px
 
 ## Components
 
-### Ghost Navigation Link
-**Role:** Navigation links and subtle interactive text.
+### Ghost Button
+**Role:** secondary action
 
-backgroundColor: rgba(0, 0, 0, 0), color: Pure White (#ffffff), border: none, borderRadius: 0px, padding: 20px 0px.
+backgroundColor: transparent, color: #fafafa, border: none, borderRadius: 6px, padding: 8px.
 
-### Pill Primary Button
-**Role:** Main call-to-action buttons.
+### Secondary Button
+**Role:** secondary action
 
-backgroundColor: Pure White (#ffffff), color: Charcoal Canvas (#08080a), border: none, borderRadius: 9999px, padding: 0px 32px.
+backgroundColor: #242424, color: #fafafa, borderColor: #393939, borderRadius: 6px, padding: 8px 16px.
 
-### Pill Ghost Button
-**Role:** Secondary action buttons, less prominent than primary.
+### Primary Call to Action Button
+**Role:** primary action
 
-backgroundColor: rgba(0, 0, 0, 0), color: Pure White (#ffffff), border: 1px solid Pure White (#ffffff), borderRadius: 9999px, padding: 6px 10px.
+backgroundColor: #006239, color: #fafafa, borderColor: rgba(62, 207, 142, 0.3), borderRadius: 6px, padding: 8px 16px.
 
-### Sharp Ghost Text Button
-**Role:** Minimal interactive elements without strong visual weight.
+### Alert Pill Button (State of Startups)
+**Role:** informational alert
 
-backgroundColor: rgba(0, 0, 0, 0), color: Pure White (#ffffff), border: none, borderRadius: 4px, padding: 0px 8px.
+backgroundColor: #121212, color: #fafafa, borderColor: #2e2e2, borderRadius: 9999px, padding: 8px 32px.
 
-### Card Standard
-**Role:** Container for content sections.
+### Feature Card
+**Role:** content container
 
-backgroundColor: rgba(0, 0, 0, 0), borderRadius: 10px, boxShadow: none, padding: 0px.
+backgroundColor: #121212, borderRadius: 16px, boxShadow: none, padding: 24px.
 
-### Pill Input Field
-**Role:** Form input fields.
+### Text Input (with focus ring)
+**Role:** data entry
 
-backgroundColor: rgba(0, 0, 0, 0), color: Pure White (#ffffff), border: 1px solid Pure White (#ffffff), borderRadius: 9999px, padding: 10px 20px.
+backgroundColor: rgba(250, 250, 250, 0.027), color: #fafafa, borderColor: #393939, borderRadius: 6px, padding: 8px. Focus state likely uses a #3ecf8 border or shadow.
 
 ## Do's and Don'ts
 
 ### Do
-- Use Midnight Ink (#000000) as the base background for most pages to establish the dark theme.
-- Prioritize Inter for all functional text: body, navigation, buttons, and forms, ensuring high legibility.
-- Apply Ivy Presto for large headlines (above 32px) to introduce a classic, authoritative counterpoint to Inter.
-- Maintain a compact density using 6px for elementGap and 16px as a multiplier for internal component spacing.
-- Incorporate subtle Golden Gradient (#cc9166) on hover states or as a background for elevated, interactive elements, never as a solid background color.
-- Use Pure White (#ffffff) for primary text and active states to ensure strong contrast and draw attention.
-- Round corners with a 10px radius for cards and general content blocks, and 9999px for pill-shaped buttons and inputs.
+- Use 'Circular' font at weight 400 or 500 for all UI text, except code blocks.
+- Adopt #fafafa for primary text and headings against dark backgrounds to ensure AAA contrast.
+- Apply #3ecf8 ('Supabase Green') exclusively for active states, primary links, and key brand affirmations.
+- Maintain a clear visual hierarchy by utilizing #121212 as the base surface and #2e2e2 for elevated cards and modals.
+- Utilize 6px radius for interactive elements like buttons and inputs, transitioning to 16px for larger content cards.
+- Employ the 9999px radius sparingly, only for 'Pill Buttons' that act as prominent announcements or unique navigational elements.
+- Ensure all interactive elements have a clear visual feedback using either a color change to 'Glow Green' or a subtle border change to 'Deep Sea Green'.
 
 ### Don't
-- Avoid using bright, saturated colors for backgrounds or large areas, as the system relies on subtle tonal differences.
-- Do not use Ivy Presto for body text or small UI elements; reserve it for large display headings.
-- Do not break the dark canvas and dark surface hierarchy by introducing light-mode components.
-- Refrain from heavy shadows or strong outlines; elevate elements through subtle background shifts and internal padding.
-- Do not introduce additional font families or decorative elements that disrupt the high-contrast, professional aesthetic.
-- Avoid arbitrary uses of Pure White (#ffffff) for backgrounds; reserve it for primary text and calls to action.
-- Do not use gradients for body text or small icons; they are reserved for decorative accents and elevated visuals.
+- Avoid arbitrary color usage; every color should map to a defined role in the palette.
+- Do not use shadows for elevation; rely on background color changes from #121212 to #2e2e2 to differentiate surface levels.
+- Do not apply `Source Code Pro` for general body text or headlines; reserve it specifically for code or data display.
+- Refrain from using mixed color backgrounds or gradients unless explicitly defined as a brand graphical element.
+- Do not break the established spacing scale; maintain 8px increments or derived values (e.g., 24px, 32px) for consistency.
+- Avoid excessive text decoration; links are identified by color ('Supabase Green') rather than underlines or heavy styling.
 
 ## Surfaces
 
 | Level | Name | Value | Purpose |
 |-------|------|-------|---------|
-| 0 | Midnight Ink | `#000000` | Base page background |
-| 1 | Obsidian Surface | `#030304` | Primary elevated surface, subtle lift |
-| 2 | Charcoal Canvas | `#08080a` | Secondary elevated surface, general content panels |
-| 3 | Pewter Accent | `#121317` | Tertiary elevated surface, interactive components |
-| 4 | Slate Gray | `#1c1d22` | Further elevated component backgrounds, deeper interactive elements |
+| 0 | Ebony Canvas | `#121212` | Primary page background |
+| 1 | Steel Surface | `#2e2e2` | Elevated cards, modals, and distinct content sections |
+| 2 | Graphite Base | `#242424` | Input backgrounds, secondary button backgrounds, subtle hover states |
+
+## Elevation
+
+Supabase intentionally avoids traditional box shadows for elevation. Instead, depth and hierarchy are communicated through distinct background color shifts. Elements on a higher 'layer' utilize a lighter, less saturated dark tone (#2e2e2e) against the base page background (#121212), creating a clean, high-contrast separation without blur or visual noise. The only shadow detected is a subtle one on buttons, likely for a minimal pressed state, not for general elevation.
 
 ## Imagery
 
-This system primarily uses product screenshots and abstract, ethereal graphics. Product screenshots are typically contained within dark, rounded cards, sometimes with a soft blur. Abstract graphics often feature metallic or translucent elements with soft, golden gradients and refractions, creating depth and a premium feel. Icons are monochrome, generally outlined or filled in White Frost. Imagery serves both decorative atmosphere (abstracts) and explanatory content (product UI examples). The density is balanced, with imagery often integrated into information blocks rather than dominating the page.
+The visual language for imagery is primarily functional and technical. Product shots are minimalist, showcasing UI directly against dark backgrounds, often with code-like visual elements. Illustrations, where present, are abstract and geometric, utilizing line art and flat fills in shades of gray and `Supabase Green`. Icons are outlined, minimal, and mono-colored, complementing the overall technical aesthetic. Photography is absent, replaced by stylized graphics or product UI snippets. Images serve an explanatory or demonstrative role rather than decorative one, maintaining a high density of visual information without clutter. The elephant logo is abstracted and used as a subtle background texture.
 
 ## Layout
 
-The page adheres to a max-width of 1216px, primarily featuring a centered content model. The hero section often presents a centered headline (Ivy Presto) over a dark, full-bleed background, with a prominent product screenshot or abstract graphic. Sections are demarcated by consistent vertical spacing of 160px, maintaining a spacious rhythm. Content often alternates between text-dominant blocks and graphical elements, including 2-column layouts for text-plus-visuals, and 3-column card grids for features. Navigation is a sticky top bar with a left-aligned logo and right-aligned actions.
+The page adheres to a mostly full-bleed layout, particularly in hero sections, with content centered within an implied max-width. The hero section is characterized by a full-width dark background with a large, centered headline that uses two distinct colors (`Whiteout` and `Supabase Green`) for visual emphasis. Content sections alternate between visually seamless dark backgrounds and slightly lighter dark surfaces for cards. There's a clear rhythm of stacked content blocks and feature sections that often alternate between text on one side and a visual or conceptual graphic on the other. Card grids, typically 3-column, are used to present features, maintaining consistent padding. Navigation is a sticky top bar, minimal and persistent. The overall density is comfortable, providing breathing room around critical information.
 
 ## Agent Prompt Guide
 
-Quick Color Reference:
-text: #ffffff
-background: #000000
-border: #e2e3e9
-accent: #cc9166
-primary action: #ffffff (filled action)
+### Quick Color Reference
+- Text (Primary): `#fafafa`
+- Background (Canvas): `#121212`
+- CTA (`Supabase Green`): `#006239`
+- Border (Input/Secondary): `#393939`
+- Accent (Heading/Link): `#3ecf8e`
 
-Example Component Prompts:
-1. Create a Primary Action Button: #ffffff background, #000000 text, 9999px radius, compact pill padding. Use this filled treatment for the main CTA.
-2. Design a Feature Card: Slate Gray (#1c1d22) background, borderRadius 10px. Title 'Marketing Agencies' in Inter weight 600, 24px, lineHeight 1.25, letterSpacing -0.025, Pure White (#ffffff). Body text ‘Transaction History’ in Inter weight 400, 16px, lineHeight 1.38, letterSpacing -0.02, White Frost (#e2e3e9). Add an icon rendered in Silver Text (#acafb9).
-3. Build a Pill Input Field: Background transparent, border 1px solid Pure White (#ffffff), borderRadius 9999px, padding 10px 20px. Placeholder text 'What's your email?' in Ash Text (#5e616e) Inter weight 400, 16px. User input text in Pure White (#ffffff) Inter weight 400, 16px.
+### 3 Example Component Prompts
+1. Create a hero section with `Ebony Canvas` background. Headline 'Build in a weekend' in `Whiteout` and 'Scale to millions' in `Supabase Green`, both `Circular` font, 72px size, 1.11 lineHeight, -0.007em letterSpacing. Below, create a `Primary Call to Action Button` and a `Secondary Button`.
+2. Design a feature card: Use `Steel Surface` background, 16px borderRadius, 24px padding. Inside, place a 'Circular' font, 18px size, 1.38 lineHeight heading in `Whiteout`, followed by 'Circular' font, 14px size, 1.5 lineHeight body text in `Mid-Gray Text`.
+3. Implement a navigation bar item: Text 'Pricing' `Circular` font, 16px size, 1.43 lineHeight in `Whiteout`. On hover, the text color changes to `Supabase Green` (`#3ecf8e`).
 
 ## Similar Brands
 
-- **Ramp** — Uses a dark mode UI with a focus on financial data and streamlined interfaces for corporate finance.
-- **Mercury** — Employs a sophisticated dark theme, detailed financial dashboards, and clear, functional typography pairings.
-- **Brex** — Features a strong dark UI with subtle gradients and a premium feel, common in corporate fintech platforms.
-- **Stripe** — Known for meticulous UI design and a focus on clarity through clean typography and a muted color palette, applying a similar level of refinement to dark mode.
+- **Vercel** — Shares a sophisticated dark-mode UI with a single prominent accent color, minimalist typography, and a focus on developer tools and product-centric visuals.
+- **GitHub** — Similar dark, code-editor aesthetic, strong emphasis on functional UI elements, subtle use of color for status/interactive elements, and clear typographic hierarchy for technical content.
+- **Linear** — Exhibits a highly refined dark theme, meticulous spacing, and a strong reliance on typographic scale and subtle foreground/background color shifts rather than heavy shadows for depth.
+- **Stripe (dark mode examples)** — Employs a clean, deep dark background with crisp, readable text and strategic use of a single strong accent color to denote key actions and branding.
 
 ## Quick Start
 
@@ -191,95 +195,89 @@ Example Component Prompts:
 ```css
 :root {
   /* Colors */
-  --color-midnight-ink: #000000;
-  --color-obsidian-surface: #030304;
-  --color-charcoal-canvas: #08080a;
-  --color-pewter-accent: #121317;
-  --color-slate-gray: #1c1d22;
-  --color-ash-text: #5e616e;
-  --color-stone-text: #777a88;
-  --color-silver-text: #acafb9;
-  --color-porcelain-text: #cdcdcd;
-  --color-white-frost: #e2e3e9;
-  --color-pure-white: #ffffff;
-  --color-golden-gradient: #cc9166;
-  --gradient-golden-gradient: linear-gradient(103deg, rgb(174, 147, 87), rgb(255, 240, 204) 40%, rgb(174, 147, 87) 70%, rgba(189, 157, 79, 0));
+  --color-midnight-abyss: #000000;
+  --color-ebony-canvas: #121212;
+  --color-graphite-base: #242424;
+  --color-steel-surface: #2e2e2;
+  --color-carbon-border: #393939;
+  --color-iron-outline: #4d4d4d;
+  --color-mid-gray-text: #898989;
+  --color-silver-highlight: #b4b4b4;
+  --color-whiteout: #fafafa;
+  --color-supabase-green: #3ecf8;
+  --color-deep-sea-green: #1f4b37;
+  --color-forest-call-to-action: #006239;
+  --color-glow-green: #00c573;
+  --color-shadow-green: #002918;
 
   /* Typography — Font Families */
-  --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-ivy-presto: 'Ivy Presto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-circular: 'Circular', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-source-code-pro: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Typography — Scale */
   --text-caption: 12px;
-  --leading-caption: 1.5;
+  --leading-caption: 1.56;
   --tracking-caption: -0.007px;
   --text-body-sm: 14px;
-  --leading-body-sm: 1.43;
-  --tracking-body-sm: -0.013px;
+  --leading-body-sm: 1.5;
+  --tracking-body-sm: -0.007px;
   --text-body: 16px;
-  --leading-body: 1.38;
-  --tracking-body: -0.02px;
-  --text-subheading: 20px;
-  --leading-subheading: 1.33;
-  --tracking-subheading: -0.022px;
-  --text-heading: 32px;
-  --leading-heading: 1.25;
-  --tracking-heading: -0.025px;
-  --text-heading-lg: 48px;
-  --leading-heading-lg: 1.13;
-  --tracking-heading-lg: -0.04px;
-  --text-display: 88px;
-  --leading-display: 1;
-  --tracking-display: 0.01px;
+  --leading-body: 1.43;
+  --tracking-body: -0.007px;
+  --text-subheading: 18px;
+  --leading-subheading: 1.38;
+  --tracking-subheading: -0.007px;
+  --text-heading: 24px;
+  --leading-heading: 1.33;
+  --tracking-heading: -0.007px;
+  --text-heading-lg: 36px;
+  --leading-heading-lg: 1.25;
+  --tracking-heading-lg: -0.007px;
+  --text-display: 72px;
+  --leading-display: 1.11;
+  --tracking-display: -0.007px;
 
   /* Typography — Weights */
-  --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
 
   /* Spacing */
-  --spacing-4: 4px;
-  --spacing-6: 6px;
+  --spacing-unit: 8px;
   --spacing-8: 8px;
-  --spacing-9: 9px;
-  --spacing-10: 10px;
-  --spacing-12: 12px;
-  --spacing-14: 14px;
   --spacing-16: 16px;
-  --spacing-20: 20px;
-  --spacing-22: 22px;
   --spacing-24: 24px;
-  --spacing-28: 28px;
   --spacing-32: 32px;
   --spacing-40: 40px;
-  --spacing-105: 105px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+  --spacing-112: 112px;
+  --spacing-128: 128px;
   --spacing-224: 224px;
 
   /* Layout */
-  --page-max-width: 1216px;
-  --section-gap: 160px;
-  --card-padding: 32px;
-  --element-gap: 6px;
+  --card-padding: 24px;
 
   /* Border Radius */
-  --radius-sm: 2px;
-  --radius-lg: 10px;
+  --radius-lg: 8px;
+  --radius-lg-2: 11px;
+  --radius-2xl: 16px;
   --radius-full: 9999px;
 
   /* Named Radii */
-  --radius-md: 10px;
-  --radius-sm: 2px;
-  --radius-none: 0px;
-  --radius-pill: 9999px;
+  --radius-cards: 16px;
+  --radius-inputs: 6px;
+  --radius-buttons: 6px;
+  --radius-pillbuttons: 9999px;
+
+  /* Shadows */
+  --shadow-sm: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
 
   /* Surfaces */
-  --surface-midnight-ink: #000000;
-  --surface-obsidian-surface: #030304;
-  --surface-charcoal-canvas: #08080a;
-  --surface-pewter-accent: #121317;
-  --surface-slate-gray: #1c1d22;
+  --surface-ebony-canvas: #121212;
+  --surface-steel-surface: #2e2e2;
+  --surface-graphite-base: #242424;
 }
 ```
 
@@ -288,67 +286,69 @@ Example Component Prompts:
 ```css
 @theme {
   /* Colors */
-  --color-midnight-ink: #000000;
-  --color-obsidian-surface: #030304;
-  --color-charcoal-canvas: #08080a;
-  --color-pewter-accent: #121317;
-  --color-slate-gray: #1c1d22;
-  --color-ash-text: #5e616e;
-  --color-stone-text: #777a88;
-  --color-silver-text: #acafb9;
-  --color-porcelain-text: #cdcdcd;
-  --color-white-frost: #e2e3e9;
-  --color-pure-white: #ffffff;
-  --color-golden-gradient: #cc9166;
+  --color-midnight-abyss: #000000;
+  --color-ebony-canvas: #121212;
+  --color-graphite-base: #242424;
+  --color-steel-surface: #2e2e2;
+  --color-carbon-border: #393939;
+  --color-iron-outline: #4d4d4d;
+  --color-mid-gray-text: #898989;
+  --color-silver-highlight: #b4b4b4;
+  --color-whiteout: #fafafa;
+  --color-supabase-green: #3ecf8;
+  --color-deep-sea-green: #1f4b37;
+  --color-forest-call-to-action: #006239;
+  --color-glow-green: #00c573;
+  --color-shadow-green: #002918;
 
   /* Typography */
-  --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-ivy-presto: 'Ivy Presto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-circular: 'Circular', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-source-code-pro: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Typography — Scale */
   --text-caption: 12px;
-  --leading-caption: 1.5;
+  --leading-caption: 1.56;
   --tracking-caption: -0.007px;
   --text-body-sm: 14px;
-  --leading-body-sm: 1.43;
-  --tracking-body-sm: -0.013px;
+  --leading-body-sm: 1.5;
+  --tracking-body-sm: -0.007px;
   --text-body: 16px;
-  --leading-body: 1.38;
-  --tracking-body: -0.02px;
-  --text-subheading: 20px;
-  --leading-subheading: 1.33;
-  --tracking-subheading: -0.022px;
-  --text-heading: 32px;
-  --leading-heading: 1.25;
-  --tracking-heading: -0.025px;
-  --text-heading-lg: 48px;
-  --leading-heading-lg: 1.13;
-  --tracking-heading-lg: -0.04px;
-  --text-display: 88px;
-  --leading-display: 1;
-  --tracking-display: 0.01px;
+  --leading-body: 1.43;
+  --tracking-body: -0.007px;
+  --text-subheading: 18px;
+  --leading-subheading: 1.38;
+  --tracking-subheading: -0.007px;
+  --text-heading: 24px;
+  --leading-heading: 1.33;
+  --tracking-heading: -0.007px;
+  --text-heading-lg: 36px;
+  --leading-heading-lg: 1.25;
+  --tracking-heading-lg: -0.007px;
+  --text-display: 72px;
+  --leading-display: 1.11;
+  --tracking-display: -0.007px;
 
   /* Spacing */
-  --spacing-4: 4px;
-  --spacing-6: 6px;
   --spacing-8: 8px;
-  --spacing-9: 9px;
-  --spacing-10: 10px;
-  --spacing-12: 12px;
-  --spacing-14: 14px;
   --spacing-16: 16px;
-  --spacing-20: 20px;
-  --spacing-22: 22px;
   --spacing-24: 24px;
-  --spacing-28: 28px;
   --spacing-32: 32px;
   --spacing-40: 40px;
-  --spacing-105: 105px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+  --spacing-112: 112px;
+  --spacing-128: 128px;
   --spacing-224: 224px;
 
   /* Border Radius */
-  --radius-sm: 2px;
-  --radius-lg: 10px;
+  --radius-lg: 8px;
+  --radius-lg-2: 11px;
+  --radius-2xl: 16px;
   --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
 }
 ```

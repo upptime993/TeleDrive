@@ -114,23 +114,23 @@ export function FileViewer({ file, files, onClose }: FileViewerProps) {
       ref={overlayRef}
       onClick={(e: any) => { if (e.target === overlayRef.current) onClose() }}
       className="fixed inset-0 z-[100] flex flex-col"
-      style={{ background: 'rgba(0,0,0,0.96)', backdropFilter: 'blur(8px)' }}
+      style={{ background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(12px)' }}
       role="dialog"
       aria-modal="true"
     >
       {/* Toolbar */}
       <div
         className="h-14 shrink-0 flex items-center gap-3 px-4 md:px-6"
-        style={{ background: '#030304', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+        style={{ background: '#2e2e2e', borderBottom: '1px solid #393939' }}
       >
         <div className="flex items-center gap-1">
           <button
             onClick={goPrev}
             disabled={!hasPrev}
-            className="p-2 rounded-[10px] transition-colors"
-            style={{ color: hasPrev ? '#5e616e' : '#1c1d22', cursor: hasPrev ? 'pointer' : 'not-allowed' }}
-            onMouseEnter={e => { if (hasPrev) { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.background = '#121317' } }}
-            onMouseLeave={e => { if (hasPrev) { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' } }}
+            className="p-2 rounded-[6px] transition-colors"
+            style={{ color: hasPrev ? '#898989' : '#393939', cursor: hasPrev ? 'pointer' : 'not-allowed' }}
+            onMouseEnter={e => { if (hasPrev) { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa'; (e.currentTarget as HTMLButtonElement).style.background = '#242424' } }}
+            onMouseLeave={e => { if (hasPrev) { (e.currentTarget as HTMLButtonElement).style.color = '#898989'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' } }}
             title="Previous (←)"
           >
             <ChevronLeft size={18} />
@@ -138,10 +138,10 @@ export function FileViewer({ file, files, onClose }: FileViewerProps) {
           <button
             onClick={goNext}
             disabled={!hasNext}
-            className="p-2 rounded-[10px] transition-colors"
-            style={{ color: hasNext ? '#5e616e' : '#1c1d22', cursor: hasNext ? 'pointer' : 'not-allowed' }}
-            onMouseEnter={e => { if (hasNext) { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.background = '#121317' } }}
-            onMouseLeave={e => { if (hasNext) { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' } }}
+            className="p-2 rounded-[6px] transition-colors"
+            style={{ color: hasNext ? '#898989' : '#393939', cursor: hasNext ? 'pointer' : 'not-allowed' }}
+            onMouseEnter={e => { if (hasNext) { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa'; (e.currentTarget as HTMLButtonElement).style.background = '#242424' } }}
+            onMouseLeave={e => { if (hasNext) { (e.currentTarget as HTMLButtonElement).style.color = '#898989'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' } }}
             title="Next (→)"
           >
             <ChevronRight size={18} />
@@ -150,13 +150,13 @@ export function FileViewer({ file, files, onClose }: FileViewerProps) {
 
         <div className="flex-1 min-w-0 flex flex-col justify-center px-3">
           <span
-            className="font-display truncate"
-            style={{ color: '#ffffff', fontSize: '16px', fontWeight: 500, letterSpacing: '0.01em' }}
+            className="truncate"
+            style={{ color: '#fafafa', fontSize: '16px', fontWeight: 500, letterSpacing: '-0.007px' }}
           >
             {currentFile.name}
           </span>
           {previewableFiles.length > 1 && (
-            <span style={{ fontSize: '12px', color: '#acafb9', fontWeight: 500 }}>
+            <span style={{ fontSize: '12px', color: '#3ecf8e', fontWeight: 400, letterSpacing: '-0.007px' }}>
               File {currentIdx + 1} of {previewableFiles.length}
             </span>
           )}
@@ -164,42 +164,42 @@ export function FileViewer({ file, files, onClose }: FileViewerProps) {
 
         {isImage && (
           <div
-            className="hidden md:flex items-center gap-1 mr-3 rounded-[10px] p-1"
-            style={{ background: '#121317', border: '1px solid rgba(255,255,255,0.05)' }}
+            className="hidden md:flex items-center gap-1 mr-3 rounded-[6px] p-1"
+            style={{ background: '#242424', border: '1px solid #393939' }}
           >
             <button
               onClick={() => setZoom(z => Math.max(z - 0.25, 0.25))}
-              className="p-1.5 rounded-md transition-colors"
-              style={{ color: '#5e616e' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+              className="p-1.5 rounded transition-colors"
+              style={{ color: '#898989' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
               title="Zoom Out (-)"
             >
-              <ZoomOut size={15} />
+              <ZoomOut size={14} />
             </button>
-            <span className="font-mono text-xs w-10 text-center select-none" style={{ color: '#e2e3e9' }}>
+            <span className="font-mono text-xs w-10 text-center select-none" style={{ color: '#b4b4b4' }}>
               {Math.round(zoom * 100)}%
             </span>
             <button
               onClick={() => setZoom(z => Math.min(z + 0.25, 4))}
-              className="p-1.5 rounded-md transition-colors"
-              style={{ color: '#5e616e' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+              className="p-1.5 rounded transition-colors"
+              style={{ color: '#898989' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
               title="Zoom In (+)"
             >
-              <ZoomIn size={15} />
+              <ZoomIn size={14} />
             </button>
-            <div className="w-px h-4 mx-1" style={{ background: 'rgba(255,255,255,0.08)' }} />
+            <div className="w-px h-4 mx-1" style={{ background: '#393939' }} />
             <button
               onClick={() => setRotation(r => (r + 90) % 360)}
-              className="p-1.5 rounded-md transition-colors"
-              style={{ color: '#5e616e' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+              className="p-1.5 rounded transition-colors"
+              style={{ color: '#898989' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
               title="Rotate"
             >
-              <RotateCw size={15} />
+              <RotateCw size={14} />
             </button>
           </div>
         )}
@@ -209,18 +209,18 @@ export function FileViewer({ file, files, onClose }: FileViewerProps) {
             href={downloadUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-ghost hidden sm:flex items-center gap-2"
-            style={{ padding: '6px 16px', fontSize: '13px' }}
+            className="btn-secondary hidden sm:flex items-center gap-2"
+            style={{ padding: '6px 14px', fontSize: '13px' }}
           >
-            <Download size={15} />
+            <Download size={14} />
             <span>Download</span>
           </a>
           <button
             onClick={onClose}
-            className="p-2 rounded-[10px] transition-colors"
-            style={{ color: '#5e616e' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.background = '#1c1d22' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
+            className="p-2 rounded-[6px] transition-colors"
+            style={{ color: '#898989' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa'; (e.currentTarget as HTMLButtonElement).style.background = '#242424' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
             title="Close (Esc)"
           >
             <X size={18} />
@@ -242,19 +242,19 @@ export function FileViewer({ file, files, onClose }: FileViewerProps) {
             {viewerType === 'image' && (
               loadingText ? (
                 <div className="flex h-full items-center justify-center">
-                  <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(255,255,255,0.10)', borderTopColor: '#ffffff' }} />
+                  <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: '#393939', borderTopColor: '#3ecf8e' }} />
                 </div>
               ) : objectUrl ? (
                 <img
                   src={objectUrl}
                   alt={currentFile.name}
-                  className="max-w-full max-h-full object-contain rounded-[10px] transition-transform duration-200"
+                  className="max-w-full max-h-full object-contain rounded-[6px] transition-transform duration-200"
                   style={{ transform: `scale(${zoom}) rotate(${rotation}deg)`, cursor: zoom > 1 ? 'zoom-out' : 'zoom-in' }}
                   onClick={() => setZoom(z => z > 1 ? 1 : 2)}
                   draggable={false}
                 />
               ) : (
-                <div style={{ color: '#5e616e' }}>Failed to load image</div>
+                <div style={{ color: '#898989' }}>Failed to load image</div>
               )
             )}
 
@@ -263,23 +263,23 @@ export function FileViewer({ file, files, onClose }: FileViewerProps) {
                 src={downloadUrl}
                 controls
                 autoPlay
-                className="max-w-full max-h-full rounded-[10px]"
+                className="max-w-full max-h-full rounded-[6px]"
                 style={{ background: '#000000' }}
               />
             )}
 
             {viewerType === 'audio' && (
               <div
-                className="w-full max-w-md p-8 rounded-2xl flex flex-col items-center"
-                style={{ background: '#121317', border: '1px solid rgba(255,255,255,0.05)' }}
+                className="w-full max-w-md p-8 rounded-[16px] flex flex-col items-center"
+                style={{ background: '#2e2e2e', border: '1px solid #393939' }}
               >
                 <div
                   className="w-24 h-24 rounded-full flex items-center justify-center mb-6 animate-[spin_4s_linear_infinite]"
-                  style={{ background: '#ffffff' }}
+                  style={{ background: '#006239', border: '1px solid rgba(62,207,142,0.20)' }}
                 >
-                  <div className="w-8 h-8 rounded-full" style={{ background: '#000000' }} />
+                  <div className="w-8 h-8 rounded-full" style={{ background: '#121212' }} />
                 </div>
-                <h3 className="text-base font-semibold mb-8 text-center" style={{ color: '#ffffff' }}>{currentFile.name}</h3>
+                <h3 className="text-sm font-medium mb-8 text-center" style={{ color: '#fafafa', letterSpacing: '-0.007px' }}>{currentFile.name}</h3>
                 <audio src={downloadUrl} controls autoPlay className="w-full" />
               </div>
             )}
@@ -288,34 +288,34 @@ export function FileViewer({ file, files, onClose }: FileViewerProps) {
               <iframe
                 src={`${downloadUrl}#toolbar=1`}
                 title={currentFile.name}
-                className="w-full h-full max-w-5xl rounded-[10px]"
-                style={{ background: '#08080a' }}
+                className="w-full h-full max-w-5xl rounded-[6px]"
+                style={{ background: '#121212' }}
               />
             )}
 
             {viewerType === 'text' && (
               <div
-                className="w-full h-full max-w-4xl rounded-[10px] overflow-hidden flex flex-col"
-                style={{ background: '#08080a', border: '1px solid rgba(255,255,255,0.05)' }}
+                className="w-full h-full max-w-4xl rounded-[16px] overflow-hidden flex flex-col"
+                style={{ background: '#000000', border: '1px solid #393939' }}
               >
                 <div
                   className="h-10 flex items-center px-4 shrink-0"
-                  style={{ background: '#030304', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                  style={{ background: '#121212', borderBottom: '1px solid #393939' }}
                 >
                   <div className="flex gap-2">
                     <div className="w-3 h-3 rounded-full bg-rose-500" />
                     <div className="w-3 h-3 rounded-full bg-amber-500" />
                     <div className="w-3 h-3 rounded-full bg-emerald-500" />
                   </div>
-                  <span className="ml-4 text-xs font-mono" style={{ color: '#5e616e' }}>{currentFile.name}</span>
+                  <span className="ml-4 text-xs font-mono" style={{ color: '#898989' }}>{currentFile.name}</span>
                 </div>
                 <div className="flex-1 overflow-auto p-6">
                   {loadingText ? (
                     <div className="flex h-full items-center justify-center">
-                      <div className="w-6 h-6 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(255,255,255,0.10)', borderTopColor: '#ffffff' }} />
+                      <div className="w-6 h-6 rounded-full border-2 animate-spin" style={{ borderColor: '#393939', borderTopColor: '#3ecf8e' }} />
                     </div>
                   ) : (
-                    <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap break-words" style={{ color: '#e2e3e9' }}>
+                    <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap break-words" style={{ color: '#b4b4b4' }}>
                       {textContent}
                     </pre>
                   )}
@@ -325,24 +325,24 @@ export function FileViewer({ file, files, onClose }: FileViewerProps) {
 
             {viewerType === 'unsupported' && (
               <div
-                className="flex flex-col items-center p-12 rounded-2xl text-center max-w-md"
-                style={{ background: '#121317', border: '1px solid rgba(255,255,255,0.05)' }}
+                className="flex flex-col items-center p-12 rounded-[16px] text-center max-w-md"
+                style={{ background: '#2e2e2e', border: '1px solid #393939' }}
               >
                 <div
-                  className="w-20 h-20 rounded-[10px] flex items-center justify-center mb-6"
-                  style={{ background: '#1c1d22', border: '1px solid rgba(255,255,255,0.05)' }}
+                  className="w-20 h-20 rounded-[6px] flex items-center justify-center mb-6"
+                  style={{ background: '#242424', border: '1px solid #393939' }}
                 >
-                  <FileQuestion size={36} style={{ color: '#777a88' }} />
+                  <FileQuestion size={32} style={{ color: '#898989' }} />
                 </div>
-                <h3 className="text-lg font-semibold mb-2" style={{ color: '#ffffff' }}>No Preview Available</h3>
-                <p className="text-sm mb-8" style={{ color: '#5e616e' }}>{currentFile.mimeType}</p>
+                <h3 className="text-base font-medium mb-2" style={{ color: '#fafafa', letterSpacing: '-0.007px' }}>No Preview Available</h3>
+                <p className="text-sm mb-8" style={{ color: '#898989', letterSpacing: '-0.007px' }}>{currentFile.mimeType}</p>
                 <a
                   href={downloadUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-primary w-full flex items-center justify-center gap-2"
                 >
-                  <Download size={16} /> Download to view
+                  <Download size={14} /> Download to view
                 </a>
               </div>
             )}

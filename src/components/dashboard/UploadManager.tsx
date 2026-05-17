@@ -379,11 +379,11 @@ export function UploadCircleIndicator({
         onClick={onPlusClick}
         className="relative z-50 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300"
         style={plusActive
-          ? { background: '#1c1d22', color: '#ffffff', transform: 'rotate(45deg)' }
-          : { background: '#ffffff', color: '#08080a' }
+          ? { background: '#242424', color: '#fafafa', transform: 'rotate(45deg)', border: '1px solid #393939' }
+          : { background: '#006239', color: '#fafafa', border: '1px solid rgba(62,207,142,0.30)' }
         }
       >
-        <Plus size={22} strokeWidth={2.5} />
+        <Plus size={22} strokeWidth={2} />
       </button>
     )
   }
@@ -396,8 +396,8 @@ export function UploadCircleIndicator({
   const cx = btnSize / 2
   const circ = 2 * Math.PI * r
   const dash = (overallPct / 100) * circ
-  const strokeColor = errorCount > 0 && activeCount === 0 ? 'rgba(255,255,255,0.40)'
-    : activeCount === 0 ? '#ffffff' : '#ffffff'
+  const strokeColor = errorCount > 0 && activeCount === 0 ? '#898989'
+    : activeCount === 0 ? '#3ecf8e' : '#3ecf8e'
 
   return (
     <div style={{ position: 'relative' }}>
@@ -410,9 +410,11 @@ export function UploadCircleIndicator({
           width: btnSize, height: btnSize,
           borderRadius: '50%',
           background: isFabMode
-            ? (plusActive ? '#1c1d22' : '#ffffff')
-            : '#121317',
-          border: isFabMode ? 'none' : '1px solid rgba(255,255,255,0.10)',
+            ? (plusActive ? '#242424' : '#006239')
+            : '#2e2e2e',
+          border: isFabMode
+            ? (plusActive ? '1px solid #393939' : '1px solid rgba(62,207,142,0.30)')
+            : '1px solid #393939',
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: 'none',
@@ -425,7 +427,7 @@ export function UploadCircleIndicator({
           width={btnSize} height={btnSize}
           style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}
         >
-          <circle cx={cx} cy={cx} r={r} fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth={isFabMode ? 4 : 3.5} />
+          <circle cx={cx} cy={cx} r={r} fill="none" stroke="#393939" strokeWidth={isFabMode ? 4 : 3.5} />
           <circle cx={cx} cy={cx} r={r} fill="none" stroke={strokeColor} strokeWidth={isFabMode ? 4 : 3.5}
             strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
             style={{ transition: 'stroke-dasharray 400ms ease, stroke 300ms' }}
@@ -436,19 +438,19 @@ export function UploadCircleIndicator({
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {isFabMode ? (
             activeCount > 0 ? (
-              <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#08080a', lineHeight: 1 }}>{overallPct}%</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: 500, color: '#fafafa', lineHeight: 1 }}>{overallPct}%</span>
             ) : errorCount > 0 ? (
-              <AlertCircle size={20} color="#acafb9" />
+              <AlertCircle size={20} color="#898989" />
             ) : (
-              <CheckCircle2 size={20} color="#08080a" />
+              <CheckCircle2 size={20} color="#fafafa" />
             )
           ) : (
             activeCount > 0 ? (
-              <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#acafb9' }}>{overallPct}%</span>
+              <span style={{ fontSize: '0.58rem', fontWeight: 500, color: '#3ecf8e' }}>{overallPct}%</span>
             ) : errorCount > 0 ? (
-              <AlertCircle size={16} color="#acafb9" />
+              <AlertCircle size={16} color="#898989" />
             ) : (
-              <CheckCircle2 size={16} color="#acafb9" />
+              <CheckCircle2 size={16} color="#3ecf8e" />
             )
           )}
         </div>
@@ -469,8 +471,8 @@ export function UploadCircleIndicator({
               : { bottom: 90, right: 24 }
             ),
             width: 290, maxWidth: 'calc(100vw - 32px)',
-            background: '#121317', border: '1px solid rgba(255,255,255,0.10)',
-            borderRadius: 10, overflow: 'hidden',
+            background: '#2e2e2e', border: '1px solid #393939',
+            borderRadius: 16, overflow: 'hidden',
             boxShadow: 'none',
             animation: 'slideUp 0.2s ease-out',
             zIndex: 499,
@@ -507,7 +509,7 @@ function UploadPanelContent({ onClose }: { onClose?: () => void }) {
   }, [totalItems, onClose])
 
   if (!totalItems) return (
-    <div style={{ padding: '16px', textAlign: 'center', color: '#5e616e', fontSize: '13px' }}>
+    <div style={{ padding: '16px', textAlign: 'center', color: '#898989', fontSize: '13px', letterSpacing: '-0.007px' }}>
       Tidak ada upload aktif
     </div>
   )
@@ -517,34 +519,34 @@ function UploadPanelContent({ onClose }: { onClose?: () => void }) {
       <div
         style={{
           display: 'flex', alignItems: 'center', gap: 8, padding: '12px 14px',
-          background: '#08080a', borderBottom: minimized ? 'none' : '1px solid rgba(255,255,255,0.05)',
+          background: '#242424', borderBottom: minimized ? 'none' : '1px solid #393939',
           cursor: 'pointer',
         }}
         onClick={() => setMinimized(m => !m)}
       >
         {activeCount > 0 ? (
-          <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.10)', borderTopColor: '#ffffff', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+          <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid #393939', borderTopColor: '#3ecf8e', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
         ) : errorCount > 0 ? (
-          <AlertCircle size={14} color="#acafb9" style={{ flexShrink: 0 }} />
+          <AlertCircle size={14} color="#898989" style={{ flexShrink: 0 }} />
         ) : (
-          <CheckCircle2 size={14} color="#acafb9" style={{ flexShrink: 0 }} />
+          <CheckCircle2 size={14} color="#3ecf8e" style={{ flexShrink: 0 }} />
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff' }}>
+          <div style={{ fontSize: '13px', fontWeight: 500, color: '#fafafa', letterSpacing: '-0.007px' }}>
             {activeCount > 0 ? `Mengupload... ${overallPct}%` : `Selesai (${doneCount}/${totalItems})`}
           </div>
           {activeCount > 0 && (
-            <div style={{ height: 2, background: 'rgba(255,255,255,0.08)', borderRadius: 999, marginTop: 4 }}>
-              <div style={{ height: '100%', width: `${overallPct}%`, background: '#ffffff', borderRadius: 999, transition: 'width 300ms' }} />
+            <div style={{ height: 2, background: '#393939', borderRadius: 999, marginTop: 4 }}>
+              <div style={{ height: '100%', width: `${overallPct}%`, background: '#3ecf8e', borderRadius: 999, transition: 'width 300ms' }} />
             </div>
           )}
         </div>
         {/* FIX #4: stopPropagation agar klik tombol minimize tidak bubble ke parent div */}
         <button
           onClick={e => { e.stopPropagation(); setMinimized(m => !m) }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5e616e', padding: 2, display: 'flex', transition: 'color 150ms' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#898989', padding: 2, display: 'flex', transition: 'color 150ms' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
         >
           {minimized ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
@@ -554,19 +556,19 @@ function UploadPanelContent({ onClose }: { onClose?: () => void }) {
         <div style={{ maxHeight: 240, overflowY: 'auto', padding: '6px 8px' }}>
           {items.map(item => (
             <div key={item.id} style={{
-              background: '#08080a', border: `1px solid rgba(255,255,255,0.05)`,
-              borderRadius: 10, padding: '8px 10px', marginBottom: 4,
+              background: '#121212', border: `1px solid #393939`,
+              borderRadius: 6, padding: '8px 10px', marginBottom: 4,
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {item.status === 'uploading' && <div style={{ width: 10, height: 10, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.10)', borderTopColor: '#ffffff', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />}
-                {item.status === 'error' && <AlertCircle size={12} color="#acafb9" style={{ flexShrink: 0 }} />}
-                {item.status === 'done' && <CheckCircle2 size={12} color="#acafb9" style={{ flexShrink: 0 }} />}
-                {item.status === 'pending' && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#1c1d22', flexShrink: 0 }} />}
-                {item.status === 'cancelled' && <Minus size={12} color="#5e616e" style={{ flexShrink: 0 }} />}
-                <span style={{ flex: 1, fontSize: '12px', color: '#e2e3e9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {item.status === 'uploading' && <div style={{ width: 10, height: 10, borderRadius: '50%', border: '2px solid #393939', borderTopColor: '#3ecf8e', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />}
+                {item.status === 'error' && <AlertCircle size={12} color="#898989" style={{ flexShrink: 0 }} />}
+                {item.status === 'done' && <CheckCircle2 size={12} color="#3ecf8e" style={{ flexShrink: 0 }} />}
+                {item.status === 'pending' && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#393939', flexShrink: 0 }} />}
+                {item.status === 'cancelled' && <Minus size={12} color="#898989" style={{ flexShrink: 0 }} />}
+                <span style={{ flex: 1, fontSize: '12px', color: '#b4b4b4', letterSpacing: '-0.007px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {item.file.name}
                 </span>
-                <span style={{ fontSize: '11px', color: '#5e616e', flexShrink: 0 }}>
+                <span style={{ fontSize: '11px', color: '#898989', flexShrink: 0 }}>
                   {item.status === 'uploading' && item.speed ? item.speed : item.status === 'pending' ? formatSize(item.file.size) : item.status === 'done' ? (item.timeTaken ? `✓ ${item.timeTaken}` : '✓') : ''}
                 </span>
                 {/* FIX #4: stopPropagation agar klik X tidak bubble ke header dan trigger toggle minimize */}
@@ -579,9 +581,9 @@ function UploadPanelContent({ onClose }: { onClose?: () => void }) {
                       removeItem(item.id)
                     }
                   }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5e616e', padding: 2, display: 'flex', flexShrink: 0, borderRadius: 4, transition: 'color 150ms' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#898989', padding: 2, display: 'flex', flexShrink: 0, borderRadius: 4, transition: 'color 150ms' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
                   title={['uploading', 'pending'].includes(item.status) ? 'Batalkan upload' : 'Hapus dari daftar'}
                 >
                   <X size={11} />
@@ -589,13 +591,13 @@ function UploadPanelContent({ onClose }: { onClose?: () => void }) {
               </div>
               {item.status === 'uploading' && (
                 <div style={{ marginTop: 5 }}>
-                  <div style={{ height: 2, background: 'rgba(255,255,255,0.08)', borderRadius: 999 }}>
-                    <div style={{ height: '100%', width: `${item.progress}%`, background: '#ffffff', borderRadius: 999, transition: 'width 250ms' }} />
+                  <div style={{ height: 2, background: '#393939', borderRadius: 999 }}>
+                    <div style={{ height: '100%', width: `${item.progress}%`, background: '#3ecf8e', borderRadius: 999, transition: 'width 250ms' }} />
                   </div>
                 </div>
               )}
               {item.status === 'error' && item.error && (
-                <p style={{ fontSize: '11px', color: '#acafb9', margin: '4px 0 0', lineHeight: 1.4 }}>{item.error}</p>
+                <p style={{ fontSize: '11px', color: '#898989', margin: '4px 0 0', lineHeight: 1.4, letterSpacing: '-0.007px' }}>{item.error}</p>
               )}
             </div>
           ))}
@@ -603,15 +605,15 @@ function UploadPanelContent({ onClose }: { onClose?: () => void }) {
       )}
 
       {!minimized && (doneCount > 0 || errorCount > 0) && activeCount === 0 && (
-        <div style={{ padding: '6px 8px 8px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ padding: '6px 8px 8px', borderTop: '1px solid #393939' }}>
           <button
             onClick={(e) => {
               e.stopPropagation()
               clearDone()
             }}
-            style={{ width: '100%', background: 'transparent', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 9999, padding: '7px', color: '#5e616e', cursor: 'pointer', fontSize: '12px', transition: 'color 150ms, border-color 150ms' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.30)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.10)' }}
+            style={{ width: '100%', background: 'transparent', border: '1px solid #393939', borderRadius: 6, padding: '7px', color: '#898989', cursor: 'pointer', fontSize: '12px', letterSpacing: '-0.007px', transition: 'color 150ms, border-color 150ms' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#4d4d4d' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#393939' }}
           >
             Bersihkan semua
           </button>
@@ -647,25 +649,25 @@ export function UploadDropZone({ folderId, onClose, workerUrls }: UploadZoneProp
         onDragLeave={() => setDragging(false)}
         onDrop={e => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files) }}
         style={{
-          border: `1px dashed ${dragging ? 'rgba(255,255,255,0.30)' : 'rgba(255,255,255,0.10)'}`,
-          borderRadius: 10, padding: '28px 16px', textAlign: 'center',
-          cursor: 'pointer', background: dragging ? '#121317' : 'transparent',
+          border: `2px dashed ${dragging ? 'rgba(62,207,142,0.40)' : '#393939'}`,
+          borderRadius: 16, padding: '28px 16px', textAlign: 'center',
+          cursor: 'pointer', background: dragging ? 'rgba(31,75,55,0.20)' : 'transparent',
           transition: 'all 200ms',
         }}
         role="button"
       >
-        <Plus size={28} color={dragging ? '#ffffff' : '#5e616e'} style={{ margin: '0 auto 10px' }} />
-        <p style={{ color: '#acafb9', fontSize: '13px', margin: 0 }}>
-          <span style={{ color: '#ffffff', fontWeight: 600 }}>Klik untuk pilih file</span>{' '}atau drag & drop
+        <Plus size={28} color={dragging ? '#3ecf8e' : '#898989'} style={{ margin: '0 auto 10px' }} />
+        <p style={{ color: '#898989', fontSize: '13px', margin: 0, letterSpacing: '-0.007px' }}>
+          <span style={{ color: '#3ecf8e', fontWeight: 500 }}>Klik untuk pilih file</span>{' '}atau drag & drop
         </p>
-        <p style={{ color: '#5e616e', fontSize: '12px', marginTop: 6 }}>
+        <p style={{ color: '#898989', fontSize: '12px', marginTop: 6, letterSpacing: '-0.007px' }}>
           Upload di background · {CONCURRENT_UPLOADS} chunk paralel · {Math.round(CHUNK_SIZE / 1024 / 1024)}MB/chunk
         </p>
       </div>
       <input ref={inputRef} type="file" multiple accept="*/*" style={{ display: 'none' }}
         onChange={e => handleFiles(e.target.files)} />
       {activeCount > 0 && (
-        <p style={{ fontSize: '13px', color: '#acafb9', marginTop: 10, textAlign: 'center' }}>
+        <p style={{ fontSize: '13px', color: '#3ecf8e', marginTop: 10, textAlign: 'center', letterSpacing: '-0.007px' }}>
           💡 Tutup dialog ini — upload tetap berjalan di background!
         </p>
       )}

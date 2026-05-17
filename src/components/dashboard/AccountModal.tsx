@@ -67,15 +67,14 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
 
   const strength = newPw.length === 0 ? 0 : newPw.length < 6 ? 1 : newPw.length < 10 ? 2 : 3
   const strengthLabel = ['', 'Lemah', 'Sedang', 'Kuat']
-  const strengthColor = ['', '#5e616e', '#acafb9', '#ffffff']
+  const strengthColor = ['', '#4d4d4d', '#b4b4b4', '#3ecf8e']
 
   return (
     <div
       onClick={(e) => { if (e.currentTarget === e.target) onClose() }}
       style={{
         position: 'fixed', inset: 0, zIndex: 1100,
-        background: 'rgba(0,0,0,0.70)',
-        backdropFilter: 'blur(4px)',
+        background: 'rgba(0,0,0,0.60)',
         display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
         animation: 'fadeIn 0.15s ease-out',
       }}
@@ -85,9 +84,9 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
       <div
         className="animate-slide-up"
         style={{
-          background: '#08080a',
-          borderTop: '1px solid rgba(255,255,255,0.10)',
-          borderRadius: '10px 10px 0 0',
+          background: '#2e2e2e',
+          borderTop: '1px solid #393939',
+          borderRadius: '16px 16px 0 0',
           width: '100%', maxWidth: 480,
           maxHeight: '90dvh', overflow: 'hidden',
           display: 'flex', flexDirection: 'column',
@@ -95,24 +94,24 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
       >
         {/* Handle bar */}
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 0' }}>
-          <div style={{ width: 36, height: 4, background: 'rgba(255,255,255,0.10)', borderRadius: 99 }} />
+          <div style={{ width: 36, height: 4, background: '#393939', borderRadius: 99 }} />
         </div>
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', padding: '14px 20px 12px', gap: 12 }}>
           <div style={{
-            width: 44, height: 44, borderRadius: '50%',
-            background: '#1c1d22', border: '1px solid rgba(255,255,255,0.10)',
+            width: 40, height: 40, borderRadius: '50%',
+            background: '#242424', border: '1px solid #393939',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1rem', fontWeight: 600, color: '#ffffff', flexShrink: 0,
+            fontSize: '14px', fontWeight: 500, color: '#3ecf8e', flexShrink: 0,
           }}>
             {initials}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '15px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontWeight: 500, color: '#fafafa', fontSize: '14px', letterSpacing: '-0.007px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {name}
             </div>
-            <div style={{ fontSize: '12px', color: '#5e616e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: '12px', color: '#898989', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {email}
             </div>
           </div>
@@ -120,18 +119,18 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
             onClick={onClose}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              color: '#5e616e', padding: 6, display: 'flex', borderRadius: 10, flexShrink: 0,
+              color: '#898989', padding: 6, display: 'flex', borderRadius: 6, flexShrink: 0,
               transition: 'color 150ms',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Tab Bar */}
-        <div style={{ display: 'flex', padding: '0 20px', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ display: 'flex', padding: '0 20px', gap: 4, borderBottom: '1px solid #393939' }}>
           {([
             { id: 'profile', icon: User, label: 'Profil' },
             { id: 'security', icon: Lock, label: 'Keamanan' },
@@ -141,14 +140,15 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
               onClick={() => { setTab(t.id); setPwError(''); setPwSuccess('') }}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                padding: '10px 14px', background: 'none', border: 'none',
-                borderBottom: `2px solid ${tab === t.id ? '#ffffff' : 'transparent'}`,
-                color: tab === t.id ? '#ffffff' : '#5e616e',
-                cursor: 'pointer', fontSize: '13px', fontWeight: tab === t.id ? 600 : 400,
+                padding: '10px 12px', background: 'none', border: 'none',
+                borderBottom: `2px solid ${tab === t.id ? '#3ecf8e' : 'transparent'}`,
+                color: tab === t.id ? '#3ecf8e' : '#898989',
+                cursor: 'pointer', fontSize: '13px', fontWeight: tab === t.id ? 500 : 400,
+                letterSpacing: '-0.007px',
                 transition: 'all 150ms', marginBottom: -1,
               }}
-              onMouseEnter={e => { if (tab !== t.id) (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-              onMouseLeave={e => { if (tab !== t.id) (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+              onMouseEnter={e => { if (tab !== t.id) (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+              onMouseLeave={e => { if (tab !== t.id) (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
             >
               <t.icon size={13} /> {t.label}
             </button>
@@ -161,7 +161,7 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
           {/* ── Profile Tab ── */}
           {tab === 'profile' && (
             <div>
-              <div style={{ background: '#121317', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 10, overflow: 'hidden', marginBottom: 16 }}>
+              <div style={{ background: '#242424', border: '1px solid #393939', borderRadius: 6, overflow: 'hidden', marginBottom: 16 }}>
                 <InfoRow label="Nama" value={name} />
                 <InfoRow label="Email" value={email} border />
                 <InfoRow label="Penyimpanan" value="Tidak terbatas via Telegram" border />
@@ -169,10 +169,10 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
               </div>
 
               <div style={{
-                background: '#1c1d22', border: '1px solid rgba(255,255,255,0.05)',
-                borderRadius: 10, padding: '12px 14px', marginBottom: 16,
+                background: '#1f4b37', border: '1px solid rgba(62,207,142,0.20)',
+                borderRadius: 6, padding: '12px 14px', marginBottom: 16,
               }}>
-                <p style={{ fontSize: '13px', color: '#acafb9', margin: 0, lineHeight: 1.5 }}>
+                <p style={{ fontSize: '13px', color: '#3ecf8e', margin: 0, lineHeight: 1.5, letterSpacing: '-0.007px' }}>
                   ☁️ TeleDrive menyimpan file kamu di Telegram secara gratis. Tidak ada batasan storage selama akun Telegram kamu aktif.
                 </p>
               </div>
@@ -182,7 +182,7 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
                 className="btn-danger"
                 style={{ width: '100%', justifyContent: 'center', gap: 8 }}
               >
-                <LogOut size={14} /> Keluar dari Akun
+                <LogOut size={13} /> Keluar dari Akun
               </button>
             </div>
           )}
@@ -190,7 +190,7 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
           {/* ── Security Tab ── */}
           {tab === 'security' && (
             <form onSubmit={handleChangePassword}>
-              <p style={{ fontSize: '13px', color: '#5e616e', marginBottom: 18, lineHeight: 1.5 }}>
+              <p style={{ fontSize: '13px', color: '#898989', marginBottom: 18, lineHeight: 1.5, letterSpacing: '-0.007px' }}>
                 Ganti password akun TeleDrive kamu. Pastikan password baru minimal 6 karakter.
               </p>
 
@@ -204,20 +204,20 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
                     className="input"
                     placeholder="Masukkan password lama"
                     required
-                    style={{ paddingRight: 44 }}
+                    style={{ paddingRight: 40 }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrent(s => !s)}
                     style={{
-                      position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-                      background: 'none', border: 'none', cursor: 'pointer', color: '#5e616e', display: 'flex',
+                      position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer', color: '#898989', display: 'flex',
                       transition: 'color 150ms',
                     }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
                   >
-                    {showCurrent ? <EyeOff size={15} /> : <Eye size={15} />}
+                    {showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
               </div>
@@ -232,20 +232,20 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
                     className="input"
                     placeholder="Min. 6 karakter"
                     required
-                    style={{ paddingRight: 44 }}
+                    style={{ paddingRight: 40 }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowNew(s => !s)}
                     style={{
-                      position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-                      background: 'none', border: 'none', cursor: 'pointer', color: '#5e616e', display: 'flex',
+                      position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer', color: '#898989', display: 'flex',
                       transition: 'color 150ms',
                     }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
                   >
-                    {showNew ? <EyeOff size={15} /> : <Eye size={15} />}
+                    {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
               </div>
@@ -256,7 +256,7 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
                     {[1,2,3].map(i => (
                       <div key={i} style={{
                         flex: 1, height: 3, borderRadius: 999,
-                        background: strength >= i ? strengthColor[strength] : '#1c1d22',
+                        background: strength >= i ? strengthColor[strength] : '#393939',
                         transition: 'background 200ms',
                       }} />
                     ))}
@@ -278,28 +278,28 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
                   required
                 />
                 {confirmPw && newPw !== confirmPw && (
-                  <p style={{ fontSize: '12px', color: '#777a88', marginTop: 6 }}>Password tidak cocok</p>
+                  <p style={{ fontSize: '12px', color: '#898989', marginTop: 6, letterSpacing: '-0.007px' }}>Password tidak cocok</p>
                 )}
               </div>
 
               {pwError && (
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 8,
-                  background: '#1c1d22', border: '1px solid rgba(255,255,255,0.10)',
-                  borderRadius: 10, padding: '10px 12px', marginBottom: 14,
+                  background: '#2e2e2e', border: '1px solid #393939',
+                  borderRadius: 6, padding: '10px 12px', marginBottom: 14,
                 }}>
-                  <AlertCircle size={13} color="#acafb9" />
-                  <span style={{ fontSize: '13px', color: '#acafb9' }}>{pwError}</span>
+                  <AlertCircle size={13} color="#898989" />
+                  <span style={{ fontSize: '13px', color: '#898989', letterSpacing: '-0.007px' }}>{pwError}</span>
                 </div>
               )}
               {pwSuccess && (
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 8,
-                  background: '#1c1d22', border: '1px solid rgba(255,255,255,0.05)',
-                  borderRadius: 10, padding: '10px 12px', marginBottom: 14,
+                  background: '#1f4b37', border: '1px solid rgba(62,207,142,0.20)',
+                  borderRadius: 6, padding: '10px 12px', marginBottom: 14,
                 }}>
-                  <CheckCircle2 size={13} color="#e2e3e9" />
-                  <span style={{ fontSize: '13px', color: '#e2e3e9' }}>{pwSuccess}</span>
+                  <CheckCircle2 size={13} color="#3ecf8e" />
+                  <span style={{ fontSize: '13px', color: '#3ecf8e', letterSpacing: '-0.007px' }}>{pwSuccess}</span>
                 </div>
               )}
 
@@ -309,7 +309,7 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
                 style={{ width: '100%', justifyContent: 'center', gap: 8 }}
                 disabled={pwLoading || !currentPw || !newPw || !confirmPw || newPw !== confirmPw}
               >
-                {pwLoading ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Lock size={14} />}
+                {pwLoading ? <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> : <Lock size={13} />}
                 {pwLoading ? 'Menyimpan...' : 'Simpan Password Baru'}
               </button>
             </form>
@@ -323,11 +323,11 @@ export function AccountModal({ open, onClose }: AccountModalProps) {
 function InfoRow({ label, value, border }: { label: string; value: string; border?: boolean }) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', padding: '11px 16px',
-      borderTop: border ? '1px solid rgba(255,255,255,0.05)' : 'none',
+      display: 'flex', alignItems: 'center', padding: '10px 14px',
+      borderTop: border ? '1px solid #393939' : 'none',
     }}>
-      <span style={{ fontSize: '11px', color: '#5e616e', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', width: 110, flexShrink: 0 }}>{label}</span>
-      <span style={{ fontSize: '13px', color: '#e2e3e9', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <span className="label" style={{ margin: 0, width: 110, flexShrink: 0 }}>{label}</span>
+      <span style={{ fontSize: '13px', color: '#b4b4b4', fontWeight: 400, letterSpacing: '-0.007px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {value}
       </span>
     </div>

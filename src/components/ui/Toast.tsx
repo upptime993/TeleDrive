@@ -28,6 +28,14 @@ const icons = {
   warning: AlertTriangle,
 }
 
+// Supabase system is monochrome — no semantic colors for toast icons
+const iconColors: Record<ToastType, string> = {
+  success: '#3ecf8e',
+  error: '#898989',
+  info: '#b4b4b4',
+  warning: '#b4b4b4',
+}
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
   const timerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
@@ -64,32 +72,32 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               className="animate-slide-in-r"
               style={{
                 display: 'flex', alignItems: 'center', gap: 10,
-                padding: '12px 16px',
-                background: '#121317',
-                border: '1px solid rgba(255,255,255,0.10)',
-                borderRadius: 10,
+                padding: '10px 14px',
+                background: '#2e2e2e',
+                border: '1px solid #393939',
+                borderRadius: 6,
                 boxShadow: 'none',
                 maxWidth: 360,
                 pointerEvents: 'all',
               }}
             >
-              <Icon size={16} color="#acafb9" style={{ flexShrink: 0 }} />
-              <span style={{ fontSize: '14px', fontWeight: 400, color: '#e2e3e9', lineHeight: 1.43, letterSpacing: '-0.013px' }}>
+              <Icon size={15} color={iconColors[t.type]} style={{ flexShrink: 0 }} />
+              <span style={{ fontSize: '14px', fontWeight: 400, color: '#b4b4b4', lineHeight: 1.5, letterSpacing: '-0.007px' }}>
                 {t.message}
               </span>
               <button
                 onClick={() => dismiss(t.id)}
                 style={{
                   marginLeft: 4, background: 'none', border: 'none',
-                  cursor: 'pointer', color: '#5e616e', flexShrink: 0,
+                  cursor: 'pointer', color: '#898989', flexShrink: 0,
                   display: 'flex', alignItems: 'center', padding: 2,
                   borderRadius: 4, transition: 'color 150ms',
                 }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
                 aria-label="Dismiss"
               >
-                <X size={14} />
+                <X size={13} />
               </button>
             </div>
           )

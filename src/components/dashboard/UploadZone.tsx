@@ -144,23 +144,23 @@ export default function UploadZone({ folderId, workerUrls, workerUrl, onUploadCo
         onDragLeave={() => setDragging(false)}
         onDrop={e => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files) }}
         style={{
-          border: `1px dashed ${dragging ? 'rgba(255,255,255,0.30)' : 'rgba(255,255,255,0.10)'}`,
-          borderRadius: 10,
+          border: `2px dashed ${dragging ? 'rgba(62,207,142,0.40)' : '#393939'}`,
+          borderRadius: 16,
           padding: '32px 24px',
           textAlign: 'center',
           cursor: 'pointer',
-          background: dragging ? '#121317' : 'transparent',
+          background: dragging ? 'rgba(31,75,55,0.20)' : 'transparent',
           transition: 'all 200ms',
         }}
         role="button"
         aria-label="Klik atau drag file untuk upload"
       >
-        <Upload size={24} color={dragging ? '#ffffff' : '#5e616e'} style={{ margin: '0 auto 12px' }} />
-        <p style={{ color: '#acafb9', fontSize: '14px', margin: 0 }}>
-          <span style={{ color: '#ffffff', fontWeight: 600 }}>Klik untuk pilih file</span>
+        <Upload size={22} color={dragging ? '#3ecf8e' : '#898989'} style={{ margin: '0 auto 12px' }} />
+        <p style={{ color: '#898989', fontSize: '14px', margin: 0, letterSpacing: '-0.007px' }}>
+          <span style={{ color: '#3ecf8e', fontWeight: 500 }}>Klik untuk pilih file</span>
           {' '}atau drag & drop di sini
         </p>
-        <p style={{ color: '#5e616e', fontSize: '12px', marginTop: 6 }}>
+        <p style={{ color: '#898989', fontSize: '12px', marginTop: 6, letterSpacing: '-0.007px' }}>
           Semua format didukung — file besar otomatis dipecah per chunk
         </p>
       </div>
@@ -173,41 +173,41 @@ export default function UploadZone({ folderId, workerUrls, workerUrl, onUploadCo
             <div
               key={item.id}
               style={{
-                background: '#08080a',
-                border: `1px solid ${item.status === 'error' ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.05)'}`,
-                borderRadius: 10,
+                background: '#121212',
+                border: `1px solid ${item.status === 'error' ? '#393939' : '#393939'}`,
+                borderRadius: 6,
                 padding: '10px 12px',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {item.status === 'uploading' && (
-                  <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.10)', borderTopColor: '#ffffff', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid #393939', borderTopColor: '#3ecf8e', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
                 )}
-                {item.status === 'error' && <AlertCircle size={14} color="#acafb9" style={{ flexShrink: 0 }} />}
-                <span style={{ flex: 1, fontSize: '13px', color: '#e2e3e9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {item.status === 'error' && <AlertCircle size={13} color="#898989" style={{ flexShrink: 0 }} />}
+                <span style={{ flex: 1, fontSize: '13px', color: '#b4b4b4', letterSpacing: '-0.007px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {item.file.name}
                 </span>
-                <span style={{ fontSize: '12px', color: '#5e616e', flexShrink: 0 }}>
+                <span style={{ fontSize: '12px', color: '#898989', flexShrink: 0 }}>
                   {item.status === 'uploading' && item.speed ? item.speed : item.status === 'error' ? 'Error' : ''}
                 </span>
                 <button
                   onClick={() => setItems(p => p.filter(i => i.id !== item.id))}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5e616e', padding: 2, display: 'flex', borderRadius: 4, transition: 'color 150ms' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#5e616e' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#898989', padding: 2, display: 'flex', borderRadius: 4, transition: 'color 150ms' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fafafa' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#898989' }}
                 >
-                  <X size={13} />
+                  <X size={12} />
                 </button>
               </div>
               {item.status === 'uploading' && (
                 <div style={{ marginTop: 8 }}>
-                  <div style={{ height: 2, background: 'rgba(255,255,255,0.08)', borderRadius: 999 }}>
-                    <div style={{ height: '100%', width: `${item.progress}%`, background: '#ffffff', borderRadius: 999, transition: 'width 300ms ease' }} />
+                  <div style={{ height: 2, background: '#393939', borderRadius: 999 }}>
+                    <div style={{ height: '100%', width: `${item.progress}%`, background: '#3ecf8e', borderRadius: 999, transition: 'width 300ms ease' }} />
                   </div>
                 </div>
               )}
               {item.status === 'error' && (
-                <p style={{ fontSize: '12px', color: '#acafb9', margin: '6px 0 0' }}>{item.error}</p>
+                <p style={{ fontSize: '12px', color: '#898989', margin: '6px 0 0', letterSpacing: '-0.007px' }}>{item.error}</p>
               )}
             </div>
           ))}

@@ -35,8 +35,7 @@ export function Modal({ open, onClose, title, children, maxWidth = 440 }: ModalP
       onClick={(e) => { if (e.target === overlayRef.current) onClose() }}
       style={{
         position: 'fixed', inset: 0, zIndex: 1000,
-        background: 'rgba(0,0,0,0.70)',
-        backdropFilter: 'blur(4px)',
+        background: 'rgba(0,0,0,0.60)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: 16,
       }}
@@ -47,9 +46,9 @@ export function Modal({ open, onClose, title, children, maxWidth = 440 }: ModalP
       <div
         className="animate-scale-in"
         style={{
-          background: '#08080a',
-          border: '1px solid rgba(255,255,255,0.10)',
-          borderRadius: 10,
+          background: '#2e2e2e',
+          border: '1px solid #393939',
+          borderRadius: 16,
           padding: 24,
           width: '100%',
           maxWidth,
@@ -60,9 +59,9 @@ export function Modal({ open, onClose, title, children, maxWidth = 440 }: ModalP
           <h3
             id="modal-title"
             style={{
-              fontSize: '16px', fontWeight: 600, color: '#ffffff',
-              margin: 0, letterSpacing: '-0.025px',
-              fontFamily: 'var(--font-inter), sans-serif',
+              fontSize: '18px', fontWeight: 500, color: '#fafafa',
+              margin: 0, letterSpacing: '-0.007px',
+              lineHeight: 1.38,
             }}
           >
             {title}
@@ -71,16 +70,16 @@ export function Modal({ open, onClose, title, children, maxWidth = 440 }: ModalP
             onClick={onClose}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              color: '#5e616e', padding: 6, borderRadius: 10,
+              color: '#898989', padding: 6, borderRadius: 6,
               display: 'flex', alignItems: 'center',
               transition: 'color 150ms, background 150ms',
             }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'
-              ;(e.currentTarget as HTMLButtonElement).style.background = '#1c1d22'
+              (e.currentTarget as HTMLButtonElement).style.color = '#fafafa'
+              ;(e.currentTarget as HTMLButtonElement).style.background = '#242424'
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.color = '#5e616e'
+              (e.currentTarget as HTMLButtonElement).style.color = '#898989'
               ;(e.currentTarget as HTMLButtonElement).style.background = 'none'
             }}
             aria-label="Tutup"
